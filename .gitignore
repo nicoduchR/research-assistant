@@ -25,6 +25,12 @@ yarn-error.log*
 # Local env files
 .env
 .env*.local
+apps/api/.env
+apps/web/.env.local
+
+# Uploads
+uploads/
+*.pdf
 
 # Vercel
 .vercel
