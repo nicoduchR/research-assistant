@@ -1,23 +1,18 @@
 // Shared TypeScript types for the monorepo
-// This file will be populated with types as features are developed
+// Types are added as entities are implemented in the backend
 
+// User entity (Story 1.2)
 export interface User {
   id: string;
+  googleId: string;
   email: string;
   name: string;
-}
-
-export interface Document {
-  id: string;
-  userId: string;
-  filename: string;
-  uploadedAt: Date;
-}
-
-export interface LiteratureReview {
-  id: string;
-  userId: string;
-  content: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  avatarUrl: string | null;
   createdAt: Date;
+  updatedAt: Date;
 }
+
+// Future types to be implemented:
+// - Document (Story 1.4+)
+// - LiteratureReview (Story 2.x+)
+// - ProcessingJob (Story 2.x+)

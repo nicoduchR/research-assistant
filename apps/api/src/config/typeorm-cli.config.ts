@@ -1,15 +1,16 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { join } from 'path';
+import { resolve } from 'path';
 
-// Load environment variables
-dotenv.config({ path: join(__dirname, '../../.env') });
+// Load environment variables - using resolve for ES module compatibility
+const envPath = resolve(process.cwd(), '.env');
+dotenv.config({ path: envPath });
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: process.env.DATABASE_URL,
-  entities: [join(__dirname, '../entities/*.entity{.ts,.js}')],
-  migrations: [join(__dirname, '../migrations/*{.ts,.js}')],
+  url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/research_assistant_dev',
+  entities: [resolve(process.cwd(), 'src/entities/*.entity{.ts,.js}')],
+  migrations: [resolve(process.cwd(), 'src/migrations/*{.ts,.js}')],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
   ssl:
