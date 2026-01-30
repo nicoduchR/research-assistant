@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MBA Research Assistant - Component Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#438eea",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#111821",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 px-6 py-3">
+<div class="max-w-[1440px] mx-auto flex items-center justify-between gap-8">
+<div class="flex items-center gap-4">
+<div class="size-8 bg-primary text-white rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined">menu_book</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight">Research Assistant <span class="text-slate-400 font-normal">| Library v2</span></h1>
+</div>
+<div class="flex-1 max-w-xl">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-primary/20 text-sm" placeholder="Search patterns or components..." type="text"/>
+</div>
+</div>
+<nav class="flex items-center gap-6">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Patterns</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Documentation</a>
+<div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-8 rounded-full bg-slate-200 border border-slate-300 dark:border-slate-700 bg-cover bg-center" data-alt="User avatar profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXGfAarjsWlYRVExVnQn_qy8mhZ-18EdYo5FJngzNllWbArxwG6x2nFWdfJ3Nb76-NejynATlbhgqhOM8EwIR7xs6R7-QdJlL0SYkNRgjYJ7Eh4ZB5neAOMIcPRJxau1p1deRNRL6ful695ZghLs5gUnfwGWMTVuf3SkFTitL4Tk6eHo0MgP3AEz78j_i56sbntujD_8fG1Ac5ADUJARm2bgK-YlhVpDNd09pDRoMyPmVdDZFXDtEXA-ZSHURNAX20QMTrODebqdqy')"></div>
+</nav>
+</div>
+</header>
+<div class="max-w-[1440px] mx-auto flex">
+<!-- Sidebar Navigation -->
+<aside class="w-64 fixed h-[calc(100vh-65px)] border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-8 bg-white dark:bg-background-dark overflow-y-auto">
+<div>
+<h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Core Components</h3>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined text-xl">grid_view</span>
+<span class="text-sm font-medium">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-xl fill-icon">layers</span>
+<span class="text-sm font-medium">Complex Patterns</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined text-xl">database</span>
+<span class="text-sm font-medium">Data States</span>
+</a>
+</nav>
+</div>
+<div>
+<h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Feedback States</h3>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined text-xl">check_circle</span>
+<span class="text-sm font-medium">Success Alerts</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined text-xl text-red-500">error</span>
+<span class="text-sm font-medium">Error Alerts</span>
+</a>
+</nav>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 p-8 overflow-x-hidden">
+<!-- Section: Methodology Progress Tracker -->
+<section class="mb-12">
+<div class="mb-6">
+<h2 class="text-2xl font-bold tracking-tight mb-2">Methodology Progress Tracker</h2>
+<p class="text-slate-500">Multi-stage workflow indicator for the literature review process.</p>
+</div>
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl shadow-sm">
+<div class="flex items-center justify-between relative">
+<!-- Connecting Lines -->
+<div class="absolute top-5 left-0 w-full h-0.5 bg-slate-100 dark:bg-slate-800 -z-10"></div>
+<div class="absolute top-5 left-0 w-1/4 h-0.5 bg-primary -z-10"></div>
+<!-- Step 1: Completed -->
+<div class="flex flex-col items-center gap-2 bg-white dark:bg-slate-900 px-4">
+<div class="size-10 rounded-full bg-primary text-white flex items-center justify-center">
+<span class="material-symbols-outlined">check</span>
+</div>
+<span class="text-xs font-bold text-slate-900 dark:text-slate-100">1. Upload</span>
+</div>
+<!-- Step 2: Active -->
+<div class="flex flex-col items-center gap-2 bg-white dark:bg-slate-900 px-4">
+<div class="size-10 rounded-full border-2 border-primary bg-primary/10 text-primary flex items-center justify-center">
+<span class="text-sm font-bold">2</span>
+</div>
+<span class="text-xs font-bold text-primary">2. Extraction</span>
+</div>
+<!-- Step 3: Pending -->
+<div class="flex flex-col items-center gap-2 bg-white dark:bg-slate-900 px-4">
+<div class="size-10 rounded-full border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-400 flex items-center justify-center">
+<span class="text-sm font-bold">3</span>
+</div>
+<span class="text-xs font-bold text-slate-400">3. Gap Analysis</span>
+</div>
+<!-- Step 4: Pending -->
+<div class="flex flex-col items-center gap-2 bg-white dark:bg-slate-900 px-4">
+<div class="size-10 rounded-full border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-400 flex items-center justify-center">
+<span class="text-sm font-bold">4</span>
+</div>
+<span class="text-xs font-bold text-slate-400">4. Synthesis</span>
+</div>
+<!-- Step 5: Pending -->
+<div class="flex flex-col items-center gap-2 bg-white dark:bg-slate-900 px-4">
+<div class="size-10 rounded-full border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-400 flex items-center justify-center">
+<span class="text-sm font-bold">5</span>
+</div>
+<span class="text-xs font-bold text-slate-400">5. Export</span>
+</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left Column: Guidance and Alerts -->
+<div class="lg:col-span-7 space-y-8">
+<!-- Guidance Card -->
+<div class="bg-primary text-white p-8 rounded-xl shadow-lg relative overflow-hidden">
+<div class="absolute top-0 right-0 opacity-10 translate-x-1/4 -translate-y-1/4">
+<span class="material-symbols-outlined text-[160px]">explore</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-3xl">explore</span>
+<h3 class="text-xl font-bold">Next Step Guidance</h3>
+</div>
+<p class="text-primary-foreground/90 mb-6 text-sm leading-relaxed">Your next step is to highlight key findings in the methodology section to facilitate extraction.</p>
+<ul class="space-y-4">
+<li class="flex gap-4 items-start">
+<span class="size-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">1</span>
+<p class="text-sm">Open the PDF viewer using the sidebar.</p>
+</li>
+<li class="flex gap-4 items-start">
+<span class="size-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+<p class="text-sm">Scroll to the "Methodology" section (usually page 4-6).</p>
+</li>
+<li class="flex gap-4 items-start">
+<span class="size-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+<p class="text-sm">Click 'Extract' to initiate AI synthesis.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- Alert Examples -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Success Alert -->
+<div class="bg-white dark:bg-slate-900 border-l-4 border-green-500 rounded-lg p-4 shadow-sm flex items-start gap-3">
+<span class="material-symbols-outlined text-green-500">check_circle</span>
+<div>
+<h4 class="text-sm font-bold">Extraction complete</h4>
+<p class="text-xs text-slate-500 mt-1">15 citations identified successfully.</p>
+</div>
+</div>
+<!-- Error Alert -->
+<div class="bg-white dark:bg-slate-900 border-l-4 border-red-500 rounded-lg p-4 shadow-sm flex items-start gap-3">
+<span class="material-symbols-outlined text-red-500">error</span>
+<div>
+<h4 class="text-sm font-bold">Upload failed</h4>
+<p class="text-xs text-slate-500 mt-1">File size exceeds 20MB limit.</p>
+</div>
+</div>
+</div>
+<!-- States Showcase -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Spinner State -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl flex flex-col items-center justify-center text-center">
+<div class="relative mb-4">
+<div class="size-12 border-4 border-slate-100 dark:border-slate-800 rounded-full"></div>
+<div class="size-12 border-4 border-primary border-t-transparent rounded-full absolute top-0 animate-spin"></div>
+</div>
+<h4 class="font-bold text-sm">Processing Analysis...</h4>
+<p class="text-xs text-slate-500 mt-1">Typically takes 30-45 seconds</p>
+</div>
+<!-- Empty State -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-xl flex flex-col items-center justify-center text-center">
+<div class="size-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 mb-4">
+<span class="material-symbols-outlined text-2xl">folder_off</span>
+</div>
+<h4 class="font-bold text-sm text-slate-600 dark:text-slate-400">No documents yet</h4>
+<p class="text-xs text-slate-500 mt-1">Upload your first PDF to begin.</p>
+<button class="mt-4 text-xs font-bold text-primary hover:underline">Browse Files</button>
+</div>
+</div>
+<!-- Tooltip Patterns -->
+<div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Research methodology often employs <span class="relative group inline-block font-bold text-primary cursor-help">
+                                Qualitative Analysis
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[10px] rounded shadow-xl invisible group-hover:visible transition-all opacity-0 group-hover:opacity-100 z-50">
+                                    A method of inquiry employed in many different academic disciplines, traditionally in the social sciences.
+                                    <span class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900"></span>
+</span>
+</span> to synthesize diverse data points within a <span class="relative group inline-block font-bold text-primary cursor-help">
+                                Literature Review
+                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-900 text-white text-[10px] rounded shadow-xl invisible group-hover:visible transition-all opacity-0 group-hover:opacity-100 z-50">
+                                    A comprehensive summary of previous research on a topic.
+                                    <span class="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900"></span>
+</span>
+</span>.
+                        </p>
+</div>
+</div>
+<!-- Right Column: PDF Viewer Panel -->
+<div class="lg:col-span-5 h-full">
+<div class="flex flex-col h-[740px] bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden sticky top-24">
+<!-- Viewer Header -->
+<div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+<div class="flex items-center gap-3 overflow-hidden">
+<span class="material-symbols-outlined text-red-500 text-xl">picture_as_pdf</span>
+<span class="text-sm font-bold truncate">Literature Review - Smith et al. 2023.pdf</span>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<button class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"><span class="material-symbols-outlined text-lg">zoom_in</span></button>
+<button class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"><span class="material-symbols-outlined text-lg">download</span></button>
+<button class="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"><span class="material-symbols-outlined text-lg">close</span></button>
+</div>
+</div>
+<!-- Viewer Content (Mock PDF Render) -->
+<div class="flex-1 bg-slate-200 dark:bg-slate-950 p-6 overflow-y-auto">
+<div class="max-w-md mx-auto space-y-6">
+<!-- PDF Page Mockup -->
+<div class="aspect-[1/1.4] bg-white dark:bg-slate-900 shadow-lg p-10 space-y-6">
+<div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
+<div class="space-y-2">
+<div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+<div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+<div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-5/6"></div>
+</div>
+<div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+<div class="h-3 bg-primary/20 rounded w-1/2 mb-2"></div>
+<div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+<div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+</div>
+<!-- Highlight Pattern example -->
+<div class="bg-yellow-100 dark:bg-yellow-900/30 p-2 border-l-2 border-yellow-400">
+<div class="h-2 bg-yellow-200 dark:bg-yellow-700 rounded w-full mb-1"></div>
+<div class="h-2 bg-yellow-200 dark:bg-yellow-700 rounded w-4/5"></div>
+</div>
+<div class="space-y-2 pt-6">
+<div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+<div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+<div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-full"></div>
+<div class="h-2 bg-slate-100 dark:bg-slate-800 rounded w-2/3"></div>
+</div>
+</div>
+<div class="aspect-[1/1.4] bg-white dark:bg-slate-900 shadow-lg p-10 opacity-50">
+<div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/4"></div>
+</div>
+</div>
+</div>
+<!-- Viewer Footer / Pagination -->
+<div class="px-4 py-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="size-8 flex items-center justify-center rounded border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<div class="flex items-center gap-2 text-xs font-medium">
+<input class="w-8 h-8 p-0 text-center border-slate-200 dark:border-slate-800 dark:bg-slate-800 rounded" type="text" value="4"/>
+<span class="text-slate-500">of 24</span>
+</div>
+<button class="size-8 flex items-center justify-center rounded border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+<div class="flex gap-2">
+<button class="text-xs font-bold text-slate-500 hover:text-primary transition-colors">Outline</button>
+<button class="text-xs font-bold text-slate-500 hover:text-primary transition-colors">Thumbnails</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Library Footer Info -->
+<footer class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800 text-center pb-8">
+<p class="text-slate-400 text-sm">MBA Research Assistant Design System • Version 2.0.4 • Generated 2024</p>
+</footer>
+</main>
+</div>
+</body></html>

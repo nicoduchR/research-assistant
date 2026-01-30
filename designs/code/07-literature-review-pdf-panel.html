@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Literature Review Citation Verification</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1152d4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pdf-highlight {
+            background-color: rgba(254, 240, 138, 0.6); /* Semi-transparent yellow highlight */
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#dbdfe6] dark:border-[#2a303c] bg-white dark:bg-[#1a2130] px-10 py-3 z-30">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-[#111318] dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">ScholarSync AI</h2>
+</div>
+<nav class="flex items-center gap-6">
+<a class="text-[#616f89] dark:text-[#a1aab9] hover:text-primary text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-[#111318] dark:text-white border-b-2 border-primary text-sm font-medium h-full flex items-center" href="#">Projects</a>
+<a class="text-[#616f89] dark:text-[#a1aab9] hover:text-primary text-sm font-medium transition-colors" href="#">Library</a>
+<a class="text-[#616f89] dark:text-[#a1aab9] hover:text-primary text-sm font-medium transition-colors" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<label class="flex flex-col min-w-40 h-9 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-[#616f89] flex border-none bg-[#f0f2f4] dark:bg-[#2a303c] items-center justify-center pl-3 rounded-l-lg" data-icon="search">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-[#f0f2f4] dark:bg-[#2a303c] text-[#111318] dark:text-white focus:ring-0 h-full placeholder:text-[#616f89] px-3 rounded-r-lg text-sm" placeholder="Search references..."/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="size-9 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined text-gray-600 dark:text-gray-400">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border border-gray-200 dark:border-gray-700" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDwzsd2DiphOVgUV_0W3io8lkkX7dmmc7RWSqOBZ9WkC94PmfjYqyqswwZ8jEgfieCcBOPk-wgi6SMz5fSg7VVKu47i4hi2EifEXtbjpwAK7VDTR1EspwmACsJ-EVsiYTXQROzOTWFAbRG_GpEd7HR_Abc0Kt_7EYii-DP2dGjzSxIIzZURWQ9uJEchO-iVFE9pS41_SE2PM3sm9srT7ZDyqcBBuKdyCIOpZp-tMn7SYT8oavBgL26DEEjL4T-8-1IdCeXmK-w3mxx_");'></div>
+</div>
+</div>
+</header>
+<!-- Sub-header with Breadcrumbs and Progress Tracker -->
+<div class="bg-white dark:bg-[#1a2130] border-b border-[#dbdfe6] dark:border-[#2a303c] px-10 py-3 flex items-center justify-between">
+<div class="flex flex-wrap gap-2 items-center">
+<a class="text-[#616f89] dark:text-[#a1aab9] text-sm font-medium hover:text-primary" href="#">Knowledge Management Systems</a>
+<span class="text-[#616f89] dark:text-[#a1aab9] text-sm font-medium">/</span>
+<span class="text-[#111318] dark:text-white text-sm font-semibold">Lit Review Draft 2</span>
+</div>
+<!-- Progress Tracker -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="flex size-6 items-center justify-center rounded-full bg-primary/20 text-primary text-xs font-bold">1</span>
+<span class="text-sm font-medium text-[#616f89]">Outline</span>
+</div>
+<div class="w-8 h-px bg-[#dbdfe6] dark:bg-[#2a303c]"></div>
+<div class="flex items-center gap-2">
+<span class="flex size-6 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">2</span>
+<span class="text-sm font-bold text-primary">Review</span>
+</div>
+<div class="w-8 h-px bg-primary"></div>
+<div class="flex items-center gap-2">
+<span class="flex size-6 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">3</span>
+<span class="text-sm font-bold text-primary">Verify</span>
+</div>
+<div class="w-8 h-px bg-[#dbdfe6] dark:bg-[#2a303c]"></div>
+<div class="flex items-center gap-2">
+<span class="flex size-6 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-[#616f89] text-xs font-bold">4</span>
+<span class="text-sm font-medium text-[#616f89]">Finalize</span>
+</div>
+</div>
+</div>
+<!-- Main Workspace Split-Panel -->
+<main class="flex-1 flex overflow-hidden relative">
+<!-- Toast Notification (Top Right of Workspace) -->
+<div class="absolute top-4 right-4 z-50 animate-fade-in">
+<div class="flex items-center gap-3 bg-white dark:bg-gray-900 border-l-4 border-green-500 rounded-lg shadow-xl px-5 py-3 pr-8">
+<span class="material-symbols-outlined text-green-500">check_circle</span>
+<div>
+<p class="text-sm font-bold text-[#111318] dark:text-white leading-none">Citation verified</p>
+<p class="text-xs text-[#616f89] mt-1 font-medium">Smith, 2019, p.47</p>
+</div>
+<button class="absolute right-2 top-2 text-[#616f89]">
+<span class="material-symbols-outlined text-base">close</span>
+</button>
+</div>
+</div>
+<!-- Left Panel: Literature Review Editor (60%) -->
+<section class="w-[60%] flex flex-col bg-white dark:bg-background-dark border-r border-[#dbdfe6] dark:border-[#2a303c] overflow-y-auto">
+<div class="max-w-[800px] mx-auto w-full px-12 py-10">
+<h1 class="text-3xl font-bold text-[#111318] dark:text-white mb-8">Evolution of Collaborative Knowledge Frameworks</h1>
+<div class="space-y-6 text-[#111318] dark:text-gray-200 text-lg leading-relaxed">
+<p>
+                        Current research in knowledge management suggests that the transition from individualistic data silos to collaborative semantic networks is the defining challenge of the current decade. Traditional systems often fail to account for the tacit knowledge transferred during informal interpersonal interactions.
+                    </p>
+<p>
+                        Recent empirical studies have demonstrated that organizational efficiency is directly correlated with the speed of cross-departmental information retrieval. Specifically, 
+                        
+                        <!-- Highlighted Citation Box -->
+<span class="inline-flex items-center gap-1.5 bg-primary/10 border border-primary/30 rounded px-2 py-0.5 text-primary font-semibold text-base cursor-pointer hover:bg-primary/20 transition-all group">
+                            [Smith, 2019, p.47]
+                            <span class="material-symbols-outlined text-base">open_in_new</span>
+</span>
+                        
+                        posits that the integration of AI-assisted indexing can reduce discovery time by up to 40% in large-scale enterprise environments. This finding is critical as it provides a quantitative baseline for evaluating modern KMS performance.
+                    </p>
+<p>
+                        Furthermore, the role of human-in-the-loop validation remains paramount. While automated systems can process vast quantities of data, the contextual nuances of academic citations require a level of verification that currently resides within the expertise of domain scholars.
+                    </p>
+<p>
+                        Beyond the efficiency gains, Smith also notes that the psychological impact of "information confidence" cannot be understated. When researchers trust the source material, the quality of synthesis inherently improves...
+                    </p>
+</div>
+</div>
+</section>
+<!-- Right Panel: PDF Viewer (40%) -->
+<section class="w-[40%] flex flex-col bg-[#f0f2f4] dark:bg-[#1a2130]">
+<!-- PDF Toolbar -->
+<div class="h-14 border-b border-[#dbdfe6] dark:border-[#2a303c] bg-white dark:bg-[#1a2130] flex items-center justify-between px-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gray-500">description</span>
+<span class="text-sm font-semibold truncate max-w-[200px] text-[#111318] dark:text-white">Smith_2019_Knowledge_Management.pdf</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="size-8 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-gray-800"><span class="material-symbols-outlined">zoom_out</span></button>
+<div class="px-2 text-xs font-medium text-[#616f89]">100%</div>
+<button class="size-8 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-gray-800"><span class="material-symbols-outlined">zoom_in</span></button>
+<div class="h-4 w-px bg-gray-300 dark:bg-gray-600 mx-2"></div>
+<div class="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded px-2 py-1">
+<span class="text-xs font-bold text-primary">47</span>
+<span class="text-xs text-gray-500">/ 124</span>
+</div>
+</div>
+</div>
+<!-- PDF Content Area -->
+<div class="flex-1 overflow-y-auto p-8 flex justify-center">
+<div class="w-full max-w-[500px] bg-white shadow-lg min-h-[700px] p-10 flex flex-col text-black font-serif relative">
+<!-- Faux PDF Header -->
+<div class="border-b border-gray-200 pb-4 mb-6">
+<p class="text-[10px] uppercase tracking-widest text-gray-400">Journal of Information Sciences | Vol 12, Issue 4</p>
+</div>
+<!-- Faux PDF Text Content -->
+<div class="text-[13px] leading-[1.6] space-y-4">
+<p class="text-gray-400">...infrastructure. Consequently, the adoption of distributed ledger technology in private sectors has shown mixed results during early trial phases (Brown et al., 2018).</p>
+<h4 class="font-bold text-sm mt-4">4.2 Quantitative Efficiency Gains</h4>
+<p>
+                            In our comparative analysis of twelve Fortune 500 companies, we observed a distinct trend in data processing workflows.
+                            
+                            <!-- PDF Highlight Area -->
+<span class="pdf-highlight p-0.5 rounded">
+                                "The implementation of semantic layering and AI-assisted automated indexing demonstrated a statistically significant reduction in search latency. Across all test groups, we recorded an average discovery time reduction of 40.2%, confirming that machine-learning intervention is the primary driver of efficiency in high-volume research environments."
+                            </span>
+</p>
+<p>
+                            This 40% threshold suggests that the return on investment for high-end indexing engines is reached within the first 18 months of deployment.
+                        </p>
+<p class="text-gray-300 italic">47</p>
+</div>
+<!-- Page Number Overlay -->
+<div class="absolute bottom-6 right-6 text-xs text-gray-400 font-sans">
+                        Smith (2019) • Page 47
+                    </div>
+</div>
+</div>
+<!-- PDF Bottom Action Bar -->
+<div class="p-4 border-t border-[#dbdfe6] dark:border-[#2a303c] bg-white dark:bg-[#1a2130]">
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<p class="text-sm font-semibold text-[#111318] dark:text-white">Verify Claim</p>
+<span class="text-xs font-medium text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded">High Confidence Match (98%)</span>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 h-9 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">Confirm Match</button>
+<button class="px-3 h-9 border border-[#dbdfe6] dark:border-[#2a303c] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"><span class="material-symbols-outlined text-sm">flag</span></button>
+<button class="px-3 h-9 border border-[#dbdfe6] dark:border-[#2a303c] rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"><span class="material-symbols-outlined text-sm">edit</span></button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Global Progress Bar at bottom -->
+<footer class="h-1 bg-[#dbdfe6] dark:bg-[#2a303c] w-full">
+<div class="h-full bg-primary" style="width: 75%;"></div>
+</footer>
+</body></html>
