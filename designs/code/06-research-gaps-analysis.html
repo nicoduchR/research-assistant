@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Research Gaps Analysis - Research Assistant AI</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "primary-dark": "#0b5cb5",
+                        "secondary": "#f0f4f8",
+                        "accent-amber": "#f59e0b",
+                        "accent-amber-light": "#fef3c7",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#101922",
+                        "text-main": "#0f172a",
+                        "text-secondary": "#475569",
+                        "border-color": "#e2e8f0"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.375rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1; }
+        
+        /* Custom scrollbar for better aesthetic */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main antialiased h-screen flex flex-col overflow-hidden">
+<!-- Top Navigation -->
+<header class="flex-none bg-white dark:bg-slate-900 border-b border-border-color dark:border-slate-800 z-20">
+<div class="px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined filled">science</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold tracking-tight">Research Assistant AI</h2>
+</div>
+<nav class="hidden md:flex items-center gap-1">
+<a class="px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-medium rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">Dashboard</a>
+<a class="px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-medium rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">Literature Review</a>
+<a class="px-3 py-2 text-primary bg-primary/5 dark:bg-primary/20 dark:text-primary-300 text-sm font-medium rounded-md" href="#">Gaps Analysis</a>
+<a class="px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-medium rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">Methodology</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block w-64">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="w-full h-10 pl-10 pr-4 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/20" placeholder="Search references..." type="text"/>
+</div>
+<button class="size-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 p-0.5">
+<img alt="Profile of a researcher" class="w-full h-full object-cover rounded-full" data-alt="User profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOZv4m4zyzHr6EDQPo8wsc0TbfFBlat1Xqjx4NtNEk23zYiUKt1gKqM-R7Y-upaVf6p0CMEFOND9kktM5TyaCG8EWXR_pnROVUXtZ5aWSYMoFYhZ9AHz4zBmBLg5kMqDzUarbi4fr3CouIWy8dO7cf3P_vARHzf5uNtnleUGSBPeYf_S4UTs37p3q5bxlF4gcRXjCdYzk0oeyzTzTJIzmQfJn4d2tBnOstuj-Wpk-XtNqBiGJqA4bRitEm-bbMcz9PJ_QXkhv7sc4Y"/>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex overflow-hidden w-full max-w-[1600px] mx-auto">
+<!-- Left Sidebar: Gaps List -->
+<aside class="w-full md:w-[400px] flex-none flex flex-col border-r border-border-color dark:border-slate-800 bg-white dark:bg-slate-900 z-10">
+<!-- Header -->
+<div class="p-6 pb-2 border-b border-border-color dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0">
+<div class="flex items-center justify-between mb-4">
+<h1 class="text-xl font-bold text-slate-900 dark:text-white">Research Gaps</h1>
+<span class="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full text-xs font-semibold">12 Found</span>
+</div>
+<!-- Filters -->
+<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px]">sort</span> Priority
+                    </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px]">filter_list</span> Relevance
+                    </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-medium text-slate-700 dark:text-slate-300 transition-colors whitespace-nowrap">
+<span class="material-symbols-outlined text-[16px]">category</span> Category
+                    </button>
+</div>
+</div>
+<!-- List Items -->
+<div class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50 dark:bg-slate-900">
+<!-- Active Item -->
+<div class="group relative bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border-2 border-primary cursor-pointer transition-all hover:shadow-md">
+<div class="flex justify-between items-start mb-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-accent-amber-light text-accent-amber-700 border border-accent-amber/20">
+                            High Priority
+                        </span>
+<span class="text-xs text-slate-400 font-medium">#Gap-01</span>
+</div>
+<h3 class="text-slate-900 dark:text-white font-semibold text-sm mb-2 leading-snug">Lack of longitudinal studies in SMEs</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">Current literature mostly focuses on short-term quarterly results, neglecting 5+ year trends.</p>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 opacity-100 text-primary">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<!-- Inactive Item -->
+<div class="group relative bg-white dark:bg-slate-800 rounded-xl p-4 border border-transparent shadow-sm hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer transition-all hover:shadow-md">
+<div class="flex justify-between items-start mb-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                            Medium Priority
+                        </span>
+<span class="text-xs text-slate-400 font-medium">#Gap-02</span>
+</div>
+<h3 class="text-slate-900 dark:text-white font-semibold text-sm mb-2 leading-snug">Geographic bias in European data</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">Existing datasets heavily favor Western European demographics, leaving Eastern markets underrepresented.</p>
+</div>
+<!-- Inactive Item -->
+<div class="group relative bg-white dark:bg-slate-800 rounded-xl p-4 border border-transparent shadow-sm hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer transition-all hover:shadow-md">
+<div class="flex justify-between items-start mb-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-accent-amber-light text-accent-amber-700 border border-accent-amber/20">
+                            High Priority
+                        </span>
+<span class="text-xs text-slate-400 font-medium">#Gap-03</span>
+</div>
+<h3 class="text-slate-900 dark:text-white font-semibold text-sm mb-2 leading-snug">Oversimplification of remote work impact</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">Nuance regarding hybrid models is missing in 2020-2022 studies.</p>
+</div>
+<!-- Inactive Item -->
+<div class="group relative bg-white dark:bg-slate-800 rounded-xl p-4 border border-transparent shadow-sm hover:border-slate-300 dark:hover:border-slate-600 cursor-pointer transition-all hover:shadow-md">
+<div class="flex justify-between items-start mb-2">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                            Medium Priority
+                        </span>
+<span class="text-xs text-slate-400 font-medium">#Gap-04</span>
+</div>
+<h3 class="text-slate-900 dark:text-white font-semibold text-sm mb-2 leading-snug">Digital transformation failure rates</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">No consensus on failure definitions in manufacturing sector.</p>
+</div>
+</div>
+</aside>
+<!-- Right Panel: Detailed Analysis -->
+<section class="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-black overflow-hidden relative">
+<!-- Detail Content -->
+<div class="flex-1 overflow-y-auto p-8 lg:p-12">
+<div class="max-w-4xl mx-auto space-y-8">
+<!-- Header -->
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-sm font-semibold bg-accent-amber text-white shadow-sm">
+<span class="material-symbols-outlined text-[16px]">priority_high</span> High Priority
+                            </span>
+<span class="text-sm text-slate-500 dark:text-slate-400">Identified from 24 sources</span>
+</div>
+<h1 class="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
+                            Lack of longitudinal studies in SMEs
+                        </h1>
+<p class="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+                            The current academic landscape is saturated with cross-sectional data. There is a <span class="bg-accent-amber/10 text-amber-700 dark:text-amber-400 px-1 rounded font-medium border-b border-accent-amber/30">critical absence</span> of studies tracking SME performance over periods longer than 3 years, specifically regarding post-digital adoption growth.
+                        </p>
+</div>
+<!-- Why This Matters Card -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+<div class="relative z-10 flex gap-5">
+<div class="flex-none pt-1">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined filled">lightbulb</span>
+</div>
+</div>
+<div class="space-y-2">
+<h3 class="text-lg font-semibold text-slate-900 dark:text-white">Why this matters for your Problématique</h3>
+<p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                    Your thesis aims to explore "5-year sustainable growth strategies". Current literature (Smith et al., 2021; Doe, 2022) does not support long-term projections without extrapolating short-term data. Addressing this gap creates a strong justification for your primary research component.
+                                </p>
+</div>
+</div>
+</div>
+<!-- Layout Grid for Action & Views -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Opposing Viewpoints -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col">
+<h3 class="text-base font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">compare_arrows</span>
+                                Opposing Viewpoints Found
+                            </h3>
+<ul class="space-y-4 flex-1">
+<li class="flex gap-3 text-sm">
+<div class="flex-none mt-1 size-1.5 rounded-full bg-slate-400"></div>
+<p class="text-slate-600 dark:text-slate-400">
+<span class="font-medium text-slate-900 dark:text-slate-200">Short-term is sufficient:</span> Some scholars argue that in the volatile digital age, 5-year plans are obsolete (Johnson, 2023).
+                                        <a class="text-primary hover:underline text-xs ml-1" href="#">[Ref]</a>
+</p>
+</li>
+<li class="flex gap-3 text-sm">
+<div class="flex-none mt-1 size-1.5 rounded-full bg-slate-400"></div>
+<p class="text-slate-600 dark:text-slate-400">
+<span class="font-medium text-slate-900 dark:text-slate-200">Data availability issues:</span> SMEs rarely maintain consistent data records suitable for academic longitudinal study (Perez, 2021).
+                                        <a class="text-primary hover:underline text-xs ml-1" href="#">[Ref]</a>
+</p>
+</li>
+</ul>
+</div>
+<!-- Suggested Action -->
+<div class="bg-gradient-to-br from-blue-50 to-white dark:from-slate-800 dark:to-slate-900 rounded-2xl p-6 shadow-sm border border-blue-100 dark:border-slate-700 flex flex-col">
+<h3 class="text-base font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">assistant</span>
+                                AI Suggested Action
+                            </h3>
+<div class="flex-1 flex flex-col justify-between gap-4">
+<p class="text-sm text-slate-600 dark:text-slate-300">
+                                    To bridge this gap effectively, consider conducting qualitative interviews to reconstruct historical performance data.
+                                </p>
+<div class="bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-100 dark:border-slate-700">
+<p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">Recommended Method</p>
+<p class="text-sm font-semibold text-primary">Primary Semi-structured Interviews</p>
+<p class="text-xs text-slate-500 mt-1">Target: SME Founders operating &gt;10 years</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Action Bar -->
+<div class="flex-none p-6 bg-white dark:bg-slate-900 border-t border-border-color dark:border-slate-800 z-20">
+<div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3 text-slate-500 text-sm">
+<span class="material-symbols-outlined text-[20px]">info</span>
+<span>This gap was last updated on Oct 24, 2023</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-white font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-[20px]">search</span>
+                            Search EBSCO
+                        </button>
+<button class="flex-1 sm:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-lg bg-primary hover:bg-primary-dark text-white font-medium text-sm shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30">
+<span class="material-symbols-outlined text-[20px]">add_task</span>
+                            Add to Methodology
+                        </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Simple interactivity for the demo to show selection state
+        const listItems = document.querySelectorAll('aside .group');
+        listItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active state from all
+                listItems.forEach(i => {
+                    i.classList.remove('border-primary');
+                    i.classList.add('border-transparent', 'hover:border-slate-300');
+                    const chevron = i.querySelector('.material-symbols-outlined');
+                    if(chevron) chevron.parentElement.classList.add('hidden');
+                });
+                
+                // Add active state to clicked
+                item.classList.remove('border-transparent', 'hover:border-slate-300');
+                item.classList.add('border-primary');
+                // Note: In a real app we would manage the chevron visibility properly, 
+                // here we are just swapping styles for demo purposes.
+            });
+        });
+    </script>
+</body></html>

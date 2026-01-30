@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Research Workspace</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#ffffff",
+                        "sidebar-bg": "#f8fafc",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-white font-display text-slate-900 overflow-hidden h-screen flex flex-col">
+<header class="h-16 shrink-0 border-b border-slate-200 bg-white flex items-center justify-between px-6 z-20 relative">
+<div class="flex items-center gap-4">
+<div class="size-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">science</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight text-slate-900">Research Assistant AI</h1>
+<div class="h-6 w-px bg-slate-200 mx-2"></div>
+<span class="text-sm text-slate-500 font-medium">MBA Thesis Project</span>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+<a class="hover:text-primary transition-colors" href="#">Projects</a>
+<a class="hover:text-primary transition-colors" href="#">Library</a>
+<a class="hover:text-primary transition-colors" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="size-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<div class="size-9 rounded-full bg-cover bg-center border border-slate-200 shadow-sm" data-alt="User profile avatar showing a generic gradient or silhouette" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAoGjDORgz4ol7Ehnp7hXxwBkeCXtqr-1rKrkURbnWN24NfJ6_tPVzBE6RGGBQ_hd3Ip6egyghdBshlur2Hfam0CRjQ5vbbTANDOGY_Y6lEVcSSYpjap4MC5GoOyZ5FG39b-t62nMG9VO4FeiugOsLnEBmpyWxz8OWuw6FFAblBTS_JaQKWFXIDK3RsH0DXh81xEknNR-BdBnMiHPqJXFW8_08nxCVacZBuGm2_tjaE4U5qaiHiIUuUSp2duuE1J46uhkaWAJ07Nysl')"></div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden relative">
+<aside class="w-72 shrink-0 border-r border-slate-200 bg-slate-50 flex flex-col z-10">
+<div class="p-4 border-b border-slate-200">
+<button class="flex items-center justify-between w-full px-3 py-2 rounded-lg bg-white border border-slate-200 shadow-sm hover:border-slate-300 transition-all group">
+<div class="flex flex-col items-start overflow-hidden">
+<span class="text-xs text-slate-500 font-medium uppercase tracking-wider">Current Project</span>
+<span class="text-sm font-semibold truncate w-full text-left text-slate-800">Supply Chain Resilience</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 group-hover:text-slate-600">unfold_more</span>
+</button>
+</div>
+<div class="p-3 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-200/60 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="text-sm font-medium">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary font-medium" href="#">
+<span class="material-symbols-outlined text-[20px] fill-1">edit_document</span>
+<span class="text-sm">Drafting</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-200/60 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">folder_open</span>
+<span class="text-sm font-medium">Sources</span>
+</a>
+</div>
+<div class="px-4 pt-4 pb-2 flex items-center justify-between">
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Sources</span>
+<button class="text-primary hover:text-blue-600 text-xs font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">add</span> Add
+                </button>
+</div>
+<div class="flex-1 overflow-y-auto px-2 pb-4 space-y-1">
+<div class="group flex items-center gap-3 p-2 rounded-lg bg-white border border-primary/20 shadow-sm cursor-pointer transition-all">
+<div class="shrink-0 size-8 rounded bg-slate-50 border border-slate-100 flex items-center justify-center text-rose-500">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-medium text-slate-900 truncate">Smith_2019_KM.pdf</p>
+<p class="text-xs text-slate-500 truncate">Cited 4 times</p>
+</div>
+<div class="size-2 rounded-full bg-green-500 shrink-0"></div>
+</div>
+<div class="group flex items-center gap-3 p-2 rounded-lg bg-slate-50/50 hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm cursor-pointer transition-all opacity-75 hover:opacity-100">
+<div class="shrink-0 size-8 rounded bg-white border border-slate-100 flex items-center justify-center text-rose-500 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-medium text-slate-700 truncate">Johnson_2021_Align.pdf</p>
+<p class="text-xs text-slate-500 truncate">Processed</p>
+</div>
+</div>
+<div class="group flex items-center gap-3 p-2 rounded-lg bg-slate-50/50 hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm cursor-pointer transition-all opacity-75 hover:opacity-100">
+<div class="shrink-0 size-8 rounded bg-white border border-slate-100 flex items-center justify-center text-rose-500 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-medium text-slate-700 truncate">Chen_2023_Supply.pdf</p>
+<p class="text-xs text-slate-500 truncate">Processing...</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 bg-white relative">
+<div class="w-full bg-white border-b border-slate-200 py-3 px-6 flex items-center justify-center shrink-0">
+<div class="flex items-center gap-2 text-sm">
+<span class="text-slate-400">Problem Definition</span>
+<span class="material-symbols-outlined text-[16px] text-slate-300">chevron_right</span>
+<span class="text-primary font-bold px-2 py-1 rounded bg-primary/10">Literature Review (Active)</span>
+<span class="material-symbols-outlined text-[16px] text-slate-300">chevron_right</span>
+<span class="text-slate-400">Methodology</span>
+<span class="material-symbols-outlined text-[16px] text-slate-300">chevron_right</span>
+<span class="text-slate-400">Results</span>
+</div>
+</div>
+<div class="w-full bg-white border-b border-slate-200 px-6 py-2 flex items-center gap-4 shrink-0 overflow-x-auto">
+<div class="flex items-center gap-1 border-r border-slate-200 pr-4">
+<button class="p-1.5 rounded hover:bg-slate-100 text-slate-600">
+<span class="material-symbols-outlined text-[20px]">format_h1</span>
+</button>
+<button class="p-1.5 rounded hover:bg-slate-100 text-slate-600">
+<span class="material-symbols-outlined text-[20px]">format_h2</span>
+</button>
+</div>
+<div class="flex items-center gap-1 border-r border-slate-200 pr-4">
+<button class="p-1.5 rounded hover:bg-slate-100 text-slate-600">
+<span class="material-symbols-outlined text-[20px]">format_bold</span>
+</button>
+<button class="p-1.5 rounded hover:bg-slate-100 text-slate-600">
+<span class="material-symbols-outlined text-[20px]">format_italic</span>
+</button>
+<button class="p-1.5 rounded hover:bg-slate-100 text-slate-600">
+<span class="material-symbols-outlined text-[20px]">format_list_bulleted</span>
+</button>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-3 py-1.5 rounded bg-purple-50 text-purple-600 text-sm font-medium hover:bg-purple-100 transition-colors border border-purple-100">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                        Rephrase Selection
+                     </button>
+</div>
+<div class="flex-1"></div>
+<span class="text-xs text-slate-400">Saving...</span>
+</div>
+<div class="flex-1 overflow-y-auto p-8 lg:p-12">
+<div class="max-w-3xl mx-auto space-y-6 text-slate-800 leading-relaxed">
+<div>
+<h1 class="text-3xl font-bold mb-6 text-slate-900">Literature Review: Supply Chain Resilience</h1>
+<h2 class="text-xl font-bold mb-4 mt-8 text-slate-900">Theme 1: Knowledge Management Integration</h2>
+<p class="mb-4 text-slate-800">
+                            The integration of Knowledge Management (KM) systems within supply chain operations has been identified as a critical factor for enhancing organizational resilience. Recent studies suggest that effective KM practices allow firms to anticipate disruptions by leveraging historical data and real-time market signals. 
+                            <span class="inline-flex items-center gap-1 align-baseline bg-primary/10 hover:bg-primary/20 text-primary px-1.5 py-0.5 rounded cursor-pointer transition-colors select-none ring-1 ring-primary/20" title="Click to verify source">
+<span class="material-symbols-outlined text-[14px]">link</span>
+<span class="text-sm font-medium">Smith, 2019, p.45</span>
+</span>
+                            However, the implementation of these systems often faces resistance due to siloed organizational structures.
+                        </p>
+<p class="mb-4 text-slate-800">
+                            Furthermore, strategic alignment between IT capabilities and business goals is paramount. Without this alignment, investments in digital tools often fail to yield the expected resilience benefits.
+                            <span class="inline-flex items-center gap-1 align-baseline bg-slate-100 hover:bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer transition-colors select-none ring-1 ring-slate-200">
+<span class="material-symbols-outlined text-[14px]">link</span>
+<span class="text-sm font-medium">Johnson, 2021, p.12</span>
+</span>
+                            This disconnect highlights the need for a holistic approach to digital transformation in supply chain management.
+                        </p>
+<h2 class="text-xl font-bold mb-4 mt-8 text-slate-900">Theme 2: Risk Mitigation Strategies</h2>
+<p class="mb-4 text-slate-800">
+                            Traditional risk mitigation strategies have focused on redundancy, such as safety stock and multi-sourcing. While effective for localized disruptions, these methods prove costly and inefficient for global, systemic shocks.
+                            <span class="inline-flex items-center gap-1 align-baseline bg-slate-100 hover:bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded cursor-pointer transition-colors select-none ring-1 ring-slate-200">
+<span class="material-symbols-outlined text-[14px]">link</span>
+<span class="text-sm font-medium">Chen et al., 2023</span>
+</span>
+                            Modern frameworks advocate for agility and visibility as superior alternatives to mere redundancy.
+                        </p>
+</div>
+<div class="mt-12 p-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 flex flex-col gap-3">
+<div class="flex items-center gap-2 text-slate-500">
+<span class="material-symbols-outlined">stars</span>
+<span class="text-sm font-medium">Suggested Next Steps</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-sm hover:border-primary hover:text-primary transition-all shadow-sm">
+                                Expand on "Agility vs Redundancy"
+                            </button>
+<button class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-sm hover:border-primary hover:text-primary transition-all shadow-sm">
+                                Synthesize findings from Chen_2023
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-6 left-0 right-0 px-8 lg:px-12 flex justify-center pointer-events-none">
+<div class="w-full max-w-2xl bg-white rounded-xl shadow-xl border border-slate-200 p-2 flex items-center gap-2 pointer-events-auto ring-1 ring-black/5">
+<div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">colors_spark</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-sm text-slate-900 placeholder-slate-400" placeholder="Ask Research AI to write, cite, or edit..." type="text"/>
+<button class="p-2 rounded-lg bg-primary text-white hover:bg-blue-600 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">arrow_upward</span>
+</button>
+</div>
+</div>
+</main>
+<aside class="w-[480px] shrink-0 border-l border-slate-200 bg-slate-50 flex flex-col relative shadow-xl z-10 hidden xl:flex">
+<div class="h-12 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0">
+<div class="flex items-center gap-3 overflow-hidden">
+<span class="material-symbols-outlined text-rose-500">picture_as_pdf</span>
+<span class="text-sm font-medium text-slate-700 truncate max-w-[200px]" title="Smith_2019_Knowledge_Mgmt.pdf">Smith_2019_Knowledge_Mgmt.pdf</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center bg-slate-100 rounded px-2 py-1 gap-2 border border-slate-200">
+<button class="text-slate-500 hover:text-slate-900"><span class="material-symbols-outlined text-[16px]">remove</span></button>
+<span class="text-xs font-mono text-slate-600">45 / 128</span>
+<button class="text-slate-500 hover:text-slate-900"><span class="material-symbols-outlined text-[16px]">add</span></button>
+</div>
+<button class="text-slate-400 hover:text-slate-600">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</div>
+<div class="h-10 bg-slate-50 border-b border-slate-200 flex items-center justify-between px-4 shrink-0">
+<div class="flex items-center gap-4">
+<button class="text-slate-500 hover:text-primary"><span class="material-symbols-outlined text-[20px]">zoom_in</span></button>
+<button class="text-slate-500 hover:text-primary"><span class="material-symbols-outlined text-[20px]">zoom_out</span></button>
+<div class="w-px h-4 bg-slate-300"></div>
+<button class="text-primary bg-primary/10 rounded px-2 py-0.5 text-xs font-medium">Highlight Mode</button>
+</div>
+<button class="text-slate-500 hover:text-primary flex items-center gap-1 text-xs font-medium">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                     Open Original
+                 </button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 flex justify-center bg-gray-200/80">
+<div class="w-full bg-white text-black shadow-xl min-h-[800px] p-8 text-[11px] leading-relaxed font-serif relative">
+<div class="flex justify-between border-b border-gray-300 pb-2 mb-6">
+<span class="text-gray-500">Journal of Supply Chain Management</span>
+<span class="text-gray-500">Vol. 45, Issue 2</span>
+</div>
+<h3 class="text-lg font-bold mb-2 text-black">4.2 Knowledge Integration in Crisis</h3>
+<div class="columns-2 gap-6 text-justify text-gray-800">
+<p class="mb-3">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        </p>
+<p class="mb-3">
+                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        </p>
+<div class="relative mb-3">
+<div class="absolute -inset-1 bg-yellow-200/50 rounded mix-blend-multiply pointer-events-none border-b-2 border-primary"></div>
+<p class="relative z-10 font-semibold bg-primary/10 rounded px-1 -mx-1 text-black">
+                                The integration of Knowledge Management (KM) systems within supply chain operations has been identified as a critical factor for enhancing organizational resilience. Recent studies suggest that effective KM practices allow firms to anticipate disruptions.
+                            </p>
+<div class="absolute -right-16 top-0 bg-primary text-white text-[9px] px-1.5 py-0.5 rounded shadow-sm font-sans font-bold whitespace-nowrap z-20">
+                                Cited
+                            </div>
+</div>
+<p class="mb-3">
+                             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. 
+                        </p>
+<p class="mb-3">
+                            Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.
+                        </p>
+<p class="mb-3">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        </p>
+<p class="mb-3">
+                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        </p>
+</div>
+<div class="absolute bottom-8 left-8 right-8 text-center text-gray-400 border-t border-gray-200 pt-2">
+                        Page 45
+                    </div>
+</div>
+</div>
+</aside>
+</div>
+
+</body></html>
