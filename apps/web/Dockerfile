@@ -1,50 +1,67 @@
-# Build stage
-FROM node:20-alpine AS builder
+# Dockerfile for Next.js Frontend in Turborepo
+FROM node:20-alpine AS base
+RUN npm install -g pnpm@9.15.4
 
+# Stage 1: Install dependencies
+FROM base AS deps
 WORKDIR /app
 
-# Copy root package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+# Install libc6-compat for Next.js
+RUN apk add --no-cache libc6-compat
+
+# Copy workspace config
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+
+# Copy all package.json files
+COPY packages/*/package.json ./packages/
 COPY apps/web/package.json ./apps/web/
-COPY packages ./packages
 
-# Install pnpm
-RUN npm install -g pnpm@9.0.0
-
-# Install dependencies
+# Install all dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy web source
-COPY apps/web ./apps/web
-
-# Build the application
-ENV NEXT_TELEMETRY_DISABLED 1
-RUN pnpm --filter web build
-
-# Production stage
-FROM node:20-alpine
-
+# Stage 2: Build
+FROM base AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/web/package.json ./apps/web/
-COPY apps/web/next.config.ts ./apps/web/
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages ./packages
+COPY --from=deps /app/apps/web ./apps/web
+
+# Copy source code
 COPY packages ./packages
+COPY apps/web ./apps/web
+COPY turbo.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Install pnpm and production dependencies
-RUN npm install -g pnpm@9.0.0
-RUN pnpm install --frozen-lockfile --prod
+# Disable Next.js telemetry
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copy built application from builder
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
+# Build the web app using Turborepo filter
+RUN pnpm run build --filter=web
+
+# Stage 3: Production
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy public assets
 COPY --from=builder /app/apps/web/public ./apps/web/public
 
-# Expose port
+# Copy built Next.js files
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+USER nextjs
+
 EXPOSE 3000
+ENV PORT=3000
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
-
-# Start the application
-CMD ["pnpm", "--filter", "web", "start"]
+# Start Next.js server
+CMD ["node", "apps/web/server.js"]
