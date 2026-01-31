@@ -51,9 +51,12 @@ COPY --from=builder --chown=nestjs:nodejs /app/apps/api/package.json ./package.j
 # Copy node_modules (production dependencies)
 COPY --from=deps --chown=nestjs:nodejs /app/node_modules ./node_modules
 
+# Create uploads directory
+RUN mkdir -p /app/uploads && chown -R nestjs:nodejs /app/uploads
+
 USER nestjs
 
-EXPOSE 3000
-ENV PORT=3000
+EXPOSE 3001
+ENV PORT=3001
 
 CMD ["node", "dist/main.js"]

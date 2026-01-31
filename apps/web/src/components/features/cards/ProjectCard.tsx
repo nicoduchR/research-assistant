@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/src/components/atoms/Card';
 import { Badge } from '@/src/components/atoms/Badge';
-import { cn } from '@/src/lib/utils';
+import { cn, formatDate } from '@/src/lib/utils';
 
 export interface ProjectCardProps {
   title: string;
@@ -37,15 +37,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onClick,
   className = '',
 }) => {
-  const formatDate = (date: Date | string): string => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   const statusVariant = {
     active: 'success' as const,
     draft: 'neutral' as const,
@@ -57,6 +48,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       className={cn(
         'cursor-pointer hover:shadow-medium transition-all duration-fast',
         'hover:border-primary/30',
+        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         className
       )}
       onClick={onClick}

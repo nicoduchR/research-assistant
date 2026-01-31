@@ -5,7 +5,7 @@ import type { Document } from '@repo/types';
 import { Card, CardContent } from '@/src/components/atoms/Card';
 import { Badge } from '@/src/components/atoms/Badge';
 import { Spinner } from '@/src/components/atoms/Spinner';
-import { cn } from '@/src/lib/utils';
+import { cn, formatDate, formatFileSize } from '@/src/lib/utils';
 
 export interface DocumentCardProps {
   document: Document;
@@ -37,21 +37,6 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const formatDate = (date: Date | string): string => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
   const getStatusIcon = () => {
     if (isProcessing) {
       return <Spinner size="sm" />;
@@ -80,6 +65,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
       className={cn(
         'relative group',
         onSelect && 'cursor-pointer hover:shadow-medium hover:border-primary/30',
+        onSelect && 'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         'transition-all duration-fast',
         className
       )}

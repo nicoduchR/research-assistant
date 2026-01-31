@@ -30,7 +30,10 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
         />
       </head>
-      <body className={`${inter.className} antialiased bg-background`}>
+      <body
+        className={`${inter.className} antialiased bg-background`}
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>

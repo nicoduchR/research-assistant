@@ -12,6 +12,7 @@ export interface DialogProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showCloseButton?: boolean;
+  ariaLabel?: string; // Fallback when no title provided
 }
 
 export const Dialog: React.FC<DialogProps> = ({
@@ -23,6 +24,7 @@ export const Dialog: React.FC<DialogProps> = ({
   className = '',
   size = 'md',
   showCloseButton = true,
+  ariaLabel,
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -68,6 +70,36 @@ export const Dialog: React.FC<DialogProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [open, onClose]);
 
+  // Focus trap: prevent tabbing out of modal
+  useEffect(() => {
+    if (!open || !dialogRef.current) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const focusableElements = dialogRef.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const focusableArray = Array.from(focusableElements || []) as HTMLElement[];
+
+      if (focusableArray.length === 0) return;
+
+      const firstElement = focusableArray[0];
+      const lastElement = focusableArray[focusableArray.length - 1];
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [open]);
+
   if (!open) return null;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -87,6 +119,7 @@ export const Dialog: React.FC<DialogProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'dialog-title' : undefined}
+        aria-label={!title ? (ariaLabel || 'Dialog') : undefined}
         aria-describedby={description ? 'dialog-description' : undefined}
         tabIndex={-1}
         className={cn(

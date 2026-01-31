@@ -12,13 +12,28 @@ This component library provides a comprehensive set of reusable UI components fo
 
 ### Colors
 
-The application uses a calm, confident color palette defined in `tailwind.config.ts` and `globals.css`:
+The application uses a calm, confident color palette defined via CSS variables in `globals.css`:
 
-- **Primary**: `#137fec` - Trust and clarity
-- **Success**: `#27AE60` - Positive actions
-- **Error**: `#E74C3C` - Warnings and errors
-- **Text Primary**: `#111827` - Main content
-- **Text Secondary**: `#95A5A6` - Supporting content
+**CSS Variables (use in Tailwind):**
+- `--background` → `bg-background` (White: `0 0% 100%`)
+- `--foreground` → `text-foreground` (Dark text: `222 47% 11%`)
+- `--primary` → `bg-primary` / `text-primary` (Blue: `#137fec`)
+- `--primary-foreground` → `text-primary-foreground` (White on blue)
+- `--secondary` → `bg-secondary` (Light gray)
+- `--destructive` / `--error` → `bg-error` / `text-error` (Red: `#E74C3C`)
+- `--success` → `bg-success` / `text-success` (Green: `#27AE60`)
+- `--border` → `border-border` (Subtle borders)
+- `--ring` → `ring-ring` (Focus ring)
+- `--muted` → `bg-muted` (Muted backgrounds)
+- `--text-primary` → `text-text-primary` (Main content: `#111827`)
+- `--text-secondary` → `text-text-secondary` (Supporting: `#95A5A6`)
+
+**Usage Example:**
+```tsx
+<button className="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-2 focus:ring-ring">
+  Primary Action
+</button>
+```
 
 ### Typography
 

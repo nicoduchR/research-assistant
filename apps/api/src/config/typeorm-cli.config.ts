@@ -9,8 +9,12 @@ dotenv.config({ path: envPath });
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/research_assistant_dev',
-  entities: [resolve(process.cwd(), 'src/entities/*.entity{.ts,.js}')],
-  migrations: [resolve(process.cwd(), 'src/migrations/*[0-9]{13}-*.{ts,js}')], // Exclude .spec.ts files
+  entities: [
+    resolve(process.cwd(), 'src/entities/*.entity.{ts,js}'),
+  ],
+  migrations: [
+    resolve(process.cwd(), 'src/migrations/*[0-9]*-*.{ts,js}'),
+  ],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
   ssl:

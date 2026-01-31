@@ -1,19 +1,20 @@
 /**
- * Document entity type (Story 2.1+)
- * Represents an uploaded PDF document
+ * Document entity type (Story 2.2)
+ * Represents an uploaded PDF document with metadata
+ * Aligned with ResearchDocument entity in apps/api/src/entities/research-document.entity.ts
  */
 export interface Document {
   id: string;
-  filename: string;
-  fileSize: number;
-  pageCount?: number;
-  status: 'pending' | 'processing' | 'completed' | 'error';
-  uploadedAt: Date | string;
-  updatedAt?: Date | string;
   userId: string;
-  projectId?: string;
-  extractedText?: string;
-  errorMessage?: string;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  storagePath: string;
+  pageCount: number | null;
+  textExtracted: boolean;
+  extractionError: string | null;
+  uploadedAt: Date | string;
+  updatedAt: Date | string;
 }
 
 /**
@@ -27,11 +28,10 @@ export interface CreateDocumentDto {
 }
 
 /**
- * DTO for updating document status
+ * DTO for updating document metadata
  */
 export interface UpdateDocumentDto {
-  status?: Document['status'];
   pageCount?: number;
-  extractedText?: string;
-  errorMessage?: string;
+  textExtracted?: boolean;
+  extractionError?: string;
 }

@@ -23,6 +23,25 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
+  # API service configuration (for future docker-compose deployment):
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: apps/api/Dockerfile
+  #   container_name: research-assistant-api
+  #   environment:
+  #     DATABASE_URL: postgresql://user:password@postgres:5432/research_assistant
+  #     REDIS_URL: redis://redis:6379
+  #     UPLOAD_BASE_PATH: /app/uploads
+  #   volumes:
+  #     - ./uploads:/app/uploads  # Persist uploaded files
+  #   ports:
+  #     - '3001:3000'
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #   restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:

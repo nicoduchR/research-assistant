@@ -2,7 +2,7 @@
 # project: research-assistant
 # project_key: research-assistant
 # tracking_system: file-system
-# story_location: C:\Users\nicol\Documents\Dev\research-assistant\_bmad-output\implementation-artifacts
+# story_location: _bmad-output/implementation-artifacts
 
 # STATUS DEFINITIONS:
 # ==================
@@ -50,9 +50,9 @@ development_status:
 
   epic-2: in-progress
   2-0-project-scope-and-problematique-setup: done
-  2-1-reusable-ui-components-library: review
-  2-2-document-data-model-and-storage-setup: backlog
-  2-3-single-pdf-upload-endpoint: backlog
+  2-1-reusable-ui-components-library: done
+  2-2-document-data-model-and-storage-setup: done
+  2-3-single-pdf-upload-endpoint: done
   2-4-pdf-text-extraction-pipeline: backlog
   2-5-drag-and-drop-upload-interface: backlog
   2-6-document-list-view: backlog

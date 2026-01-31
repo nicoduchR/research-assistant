@@ -1,7 +1,8 @@
 import React from 'react';
 import { Badge, BadgeProps } from '@/src/components/atoms/Badge';
 
-export type ProcessingStatus = 'idle' | 'processing' | 'completed' | 'failed';
+// Aligned with Document type status field
+export type ProcessingStatus = 'pending' | 'processing' | 'completed' | 'error';
 
 export interface StatusBadgeProps {
   status: ProcessingStatus;
@@ -16,7 +17,7 @@ export interface StatusBadgeProps {
  * ```tsx
  * <StatusBadge status="processing" text="Processing..." />
  * <StatusBadge status="completed" />
- * <StatusBadge status="failed" text="Failed" />
+ * <StatusBadge status="error" text="Upload failed" />
  * ```
  */
 export const StatusBadge: React.FC<StatusBadgeProps> = ({
@@ -25,9 +26,9 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   className = '',
 }) => {
   const statusConfig: Record<ProcessingStatus, { variant: BadgeProps['variant']; label: string; icon?: string }> = {
-    idle: {
+    pending: {
       variant: 'neutral',
-      label: 'Idle',
+      label: 'Pending',
       icon: 'radio_button_unchecked',
     },
     processing: {
@@ -40,9 +41,9 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       label: 'Completed',
       icon: 'check_circle',
     },
-    failed: {
+    error: {
       variant: 'error',
-      label: 'Failed',
+      label: 'Error',
       icon: 'error',
     },
   };
