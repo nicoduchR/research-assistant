@@ -19,10 +19,42 @@ Copy the example environment file and configure it:
 cp .env.example .env
 ```
 
-Update the `.env` file with your local database credentials:
+Update the `.env` file with your local database credentials and OAuth settings:
 
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/research_assistant_dev
+
+# Generate JWT secret with: openssl rand -base64 32
+JWT_SECRET=your-generated-secret-here
+JWT_EXPIRES_IN=7d
+
+# Get from Google Cloud Console (see OAuth Setup below)
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:3001/api/v1/auth/google/callback
+
+FRONTEND_URL=http://localhost:3000
+```
+
+#### Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Go to "Credentials" → "Create Credentials" → "OAuth 2.0 Client ID"
+5. Configure OAuth consent screen (for development):
+   - User Type: External
+   - Add your email as test user
+6. Create OAuth 2.0 Client ID:
+   - Application type: Web application
+   - Authorized redirect URIs: `http://localhost:3001/auth/google/callback`
+   - Authorized JavaScript origins: `http://localhost:3000`
+7. Copy the Client ID and Client Secret to your `.env` file
+
+#### Generate JWT Secret
+
+```bash
+openssl rand -base64 32
 ```
 
 ### 2. Database Setup
@@ -58,7 +90,18 @@ createdb research_assistant_dev
 
 ### 3. Run Migrations
 
-Generate and run database migrations:
+**Option A: Automatic Migrations (Development)**
+
+Migrations run automatically on server startup when `AUTO_RUN_MIGRATIONS=true` in `.env`:
+
+```bash
+# Just start the server - migrations run automatically
+pnpm dev
+```
+
+**Option B: Manual Migrations (Production)**
+
+Generate and run database migrations manually:
 
 ```bash
 # Run existing migrations
@@ -70,6 +113,8 @@ pnpm migration:generate MigrationName
 # Revert last migration
 pnpm migration:revert
 ```
+
+**⚠️ Production Note:** Set `AUTO_RUN_MIGRATIONS=false` in production and use manual migrations for safety.
 
 ### 4. Start Development Server
 

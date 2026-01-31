@@ -17,7 +17,7 @@ export const getDatabaseConfig = (
     type: 'postgres',
     url: databaseUrl,
     entities: [__dirname + '/../entities/*.entity{.ts,.js}'],
-    migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+    migrations: [__dirname + '/../migrations/*[0-9]{13}-*.{ts,js}'], // Exclude .spec.ts files
     synchronize: false, // Always use migrations in production
     autoLoadEntities: true, // Automatic entity discovery
     logging: configService.get('NODE_ENV') === 'development',

@@ -12,7 +12,10 @@ export interface User {
   updatedAt: Date;
 }
 
+// Research Scope (Story 2.0)
+export type { ResearchScope, CreateResearchScopeDto } from './research';
+
 // Future types to be implemented:
-// - Document (Story 1.4+)
-// - LiteratureReview (Story 2.x+)
-// - ProcessingJob (Story 2.x+)
+// - Document (Story 2.3+)
+// - LiteratureReview (Story 3.x+)
+// - ProcessingJob (Story 3.x+)

@@ -11,16 +11,16 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'google_id', unique: true })
+  @Column({ name: 'google_id', unique: true, type: 'varchar' })
   googleId: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   email: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   name: string;
 
-  @Column({ name: 'avatar_url', nullable: true })
+  @Column({ name: 'avatar_url', type: 'varchar', nullable: true })
   avatarUrl: string | null;
 
   @CreateDateColumn({ name: 'created_at' })

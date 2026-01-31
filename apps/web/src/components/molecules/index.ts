@@ -21,3 +21,6 @@ export type { DropZoneProps } from './DropZone';
 
 export { Toast } from './Toast';
 export type { ToastProps } from './Toast';
+
+export { TextareaWithCounter } from './TextareaWithCounter';
+export type { TextareaWithCounterProps } from './TextareaWithCounter';

@@ -323,7 +323,53 @@ So that I can securely end my session especially on shared devices.
 
 Users can upload PDF research documents via drag-and-drop, view their collection, and manage their documents with automatic text extraction.
 
-### Story 2.1: Document Data Model and Storage Setup
+**Design References:**
+- Design 00: Project Scope Setup
+- Design 01: PDF Upload Dashboard
+- Design 04: Research Library
+
+### Story 2.0: Project Scope & Problématique Setup
+
+As an MBA student,
+I want to define my research scope and problématique when I first use the app,
+So that the AI can generate a literature review aligned with my research goals.
+
+**Acceptance Criteria:**
+
+**Given** I am a new user who just signed in
+**When** I first access the dashboard
+**Then** I am prompted to complete my research scope setup
+**And** I see a form based on Design 00
+
+**Given** I complete the scope setup form
+**When** I submit the form
+**Then** My scope is saved and I proceed to document upload
+**And** The AI will use this context for literature review generation
+
+**Design Reference:** Design 00 (simplified for MVP - one scope per user)
+
+### Story 2.1: Reusable UI Components Library
+
+As a developer,
+I want to build reusable UI components based on the designs,
+So that I can create consistent interfaces efficiently.
+
+**Acceptance Criteria:**
+
+**Given** I have the design files
+**When** I analyze common UI patterns
+**Then** I create reusable components matching the designs
+**And** Components use TypeScript, Tailwind CSS, and shadcn/ui
+**And** Components are documented and tested
+
+**Required Components** (from Designs 00-07):
+- Navigation: Sidebar, Breadcrumb, ProgressSteps
+- Forms: TextareaWithCounter, TagInput, DynamicList
+- Cards: ProjectCard, DocumentCard, StatusBadge
+- Buttons: PrimaryButton, SecondaryButton, IconButton
+- Layout: EmptyState, LoadingSpinner, Toast, Modal
+
+### Story 2.2: Document Data Model and Storage Setup
 
 As a developer,
 I want to create the document data model and configure filesystem storage,
@@ -342,7 +388,7 @@ So that the application can persist uploaded PDFs with proper user isolation.
 **And** The uploads directory is configured as a Docker mounted volume
 **And** Environment variable for upload path is documented (.env.example)
 
-### Story 2.2: Single PDF Upload Endpoint
+### Story 2.3: Single PDF Upload Endpoint
 
 As a working professional pursuing an MBA,
 I want to upload a PDF research paper to the application,
@@ -376,7 +422,7 @@ So that I can begin processing my literature for the review.
 **Then** The API returns 413 status with error "File size exceeds maximum limit of 50MB"
 **And** No file is saved
 
-### Story 2.3: PDF Text Extraction Pipeline
+### Story 2.4: PDF Text Extraction Pipeline
 
 As a working professional,
 I want the system to automatically extract text from my uploaded PDFs,
@@ -411,7 +457,7 @@ So that the AI can analyze the content for literature review generation.
 **And** The extraction_error field captures the error message
 **And** The document remains in the database for user visibility
 
-### Story 2.4: Drag-and-Drop Upload Interface
+### Story 2.5: Drag-and-Drop Upload Interface
 
 As a working professional,
 I want to drag and drop multiple PDF files onto the page,
@@ -452,7 +498,7 @@ So that I can quickly upload all my research papers in one action.
 **And** The failed file can be retried
 **And** Other uploads in progress continue unaffected
 
-### Story 2.5: Document List View
+### Story 2.6: Document List View
 
 As a working professional,
 I want to see all my uploaded documents in a list,
@@ -488,7 +534,7 @@ So that I can track what papers I've added and select documents for processing.
 **Then** An empty state is displayed with message: "No documents yet. Drag and drop PDFs to get started."
 **And** The drag-and-drop zone remains prominent
 
-### Story 2.6: Remove Document Functionality
+### Story 2.7: Remove Document Functionality
 
 As a working professional,
 I want to remove documents from my collection,
@@ -534,6 +580,12 @@ So that I can manage my workspace and delete papers I no longer need.
 ## Epic 3: AI-Powered Literature Review Generation
 
 Users can process their PDFs and generate structured literature reviews with full citation traceability, seeing real-time progress and handling errors gracefully.
+
+**Design References:**
+- Design 02: Processing Progress Screen
+- Design 03: Literature Review Output
+- Design 05: Methodology Tracker
+- Design 07: Bibliography Export
 
 ### Story 3.1: Processing Jobs Infrastructure
 
@@ -845,9 +897,77 @@ So that one problematic PDF doesn't prevent me from processing the rest of my do
 **And** The user is notified via the progress modal
 **And** The job can be manually retried from the UI
 
+### Story 3.10: Bibliography Export and Citation Formatting
+
+As a working professional,
+I want to export my bibliography in standard academic formats,
+So that I can easily cite sources in my academic paper with proper formatting.
+
+**Design References:**
+- Design 07: Bibliography Export
+
+**Acceptance Criteria:**
+
+**Given** I have a completed literature review with citations
+**When** I view the literature review page
+**Then** A "Bibliography" section is displayed below the review content
+**And** All cited documents are listed in the bibliography
+**And** Each entry includes: author, title, year, publication source (if available)
+**And** Citations are numbered to match the in-text citation markers
+
+**Given** I want to export the bibliography
+**When** I click an "Export Bibliography" button
+**Then** A format selection dropdown/modal is shown
+**And** Available formats include: APA, MLA, Chicago, BibTeX
+**And** Each format option shows a brief description or example
+
+**Given** I select APA format
+**When** I click "Export as APA"
+**Then** The bibliography is formatted according to APA 7th edition style
+**And** A downloadable text file is generated: `bibliography-apa-{reviewId}.txt`
+**And** The file contains all citations in proper APA format
+**And** Citations are alphabetically sorted by author last name
+
+**Given** I select MLA format
+**When** I click "Export as MLA"
+**Then** The bibliography is formatted according to MLA 9th edition style
+**And** A downloadable text file is generated: `bibliography-mla-{reviewId}.txt`
+**And** The file contains all citations in proper MLA format
+**And** Citations are alphabetically sorted by author last name
+
+**Given** I select Chicago format
+**When** I click "Export as Chicago"
+**Then** The bibliography is formatted according to Chicago 17th edition style
+**And** A downloadable text file is generated: `bibliography-chicago-{reviewId}.txt`
+**And** The file contains all citations in proper Chicago format
+**And** Citations are alphabetically sorted by author last name
+
+**Given** I select BibTeX format
+**When** I click "Export as BibTeX"
+**Then** A .bib file is generated: `bibliography-{reviewId}.bib`
+**And** Each entry has a unique citation key (e.g., author_year_title_abbreviated)
+**And** All required BibTeX fields are populated (author, title, year, etc.)
+**And** The file can be imported directly into LaTeX or reference managers
+
+**Given** Document metadata is incomplete (e.g., missing author)
+**When** Generating bibliography entries
+**Then** Available fields are included with proper formatting
+**And** Missing fields are noted with "[No author]" or "[Unknown year]"
+**And** A warning is displayed: "Some citations have incomplete metadata. Please verify manually."
+**And** The export still succeeds with partial information
+
+**Given** I copy bibliography to clipboard
+**When** I click "Copy to Clipboard" next to a format option
+**Then** The formatted bibliography is copied to the system clipboard
+**And** A success toast appears: "Bibliography copied to clipboard"
+**And** I can paste it directly into my document editor
+
 ## Epic 4: Citation Verification & PDF Viewer
 
 Users can verify any AI-generated citation by clicking to open the source PDF at the exact page in a side panel.
+
+**Design References:**
+- Design 06: PDF Viewer with Citation Highlight
 
 ### Story 4.1: PDF File Serving with Authorization
 
