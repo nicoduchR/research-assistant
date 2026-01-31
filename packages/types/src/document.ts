@@ -13,6 +13,7 @@ export interface Document {
   pageCount: number | null;
   textExtracted: boolean;
   extractionError: string | null;
+  extractedText: string | null;
   uploadedAt: Date | string;
   updatedAt: Date | string;
 }

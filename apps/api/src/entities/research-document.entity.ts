@@ -49,6 +49,9 @@ export class ResearchDocument {
   @Column({ name: 'extraction_error', type: 'text', nullable: true })
   extractionError: string | null;
 
+  @Column({ name: 'extracted_text', type: 'text', nullable: true })
+  extractedText: string | null;
+
   @CreateDateColumn({ name: 'uploaded_at' })
   uploadedAt: Date;
 

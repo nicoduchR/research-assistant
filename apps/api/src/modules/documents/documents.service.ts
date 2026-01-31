@@ -6,7 +6,9 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { InjectQueue } from '@nestjs/bull';
 import { Repository } from 'typeorm';
+import { Queue } from 'bull';
 import { ResearchDocument } from '../../entities/research-document.entity';
 import { StorageService } from '../storage/storage.service';
 import { randomUUID } from 'crypto';
@@ -22,6 +24,8 @@ export class DocumentsService {
     @InjectRepository(ResearchDocument)
     private documentRepository: Repository<ResearchDocument>,
     private storageService: StorageService,
+    @InjectQueue('pdf-extraction')
+    private pdfExtractionQueue: Queue,
   ) {}
 
   /**
@@ -116,6 +120,17 @@ export class DocumentsService {
       const savedDocument = await this.documentRepository.save(document);
       this.logger.log(
         `Document created successfully: documentId=${documentId}, fileName="${sanitizedFilename}"`,
+      );
+
+      // Step 8: Queue PDF text extraction job (background processing)
+      const job = await this.pdfExtractionQueue.add('extract-text', {
+        documentId: savedDocument.id,
+        userId: savedDocument.userId,
+        storagePath: savedDocument.storagePath,
+      });
+
+      this.logger.log(
+        `Queued PDF extraction job ${job.id} for document ${documentId}`,
       );
 
       return savedDocument;
