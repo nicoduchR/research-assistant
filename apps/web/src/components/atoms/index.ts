@@ -19,3 +19,12 @@ export type { RadioProps } from './Radio';
 
 export { Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';
+
+export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card';
+export type { CardProps, CardHeaderProps, CardTitleProps, CardDescriptionProps, CardContentProps, CardFooterProps } from './Card';
+
+export { Dialog } from './Dialog';
+export type { DialogProps } from './Dialog';
+
+export { Spinner } from './Spinner';
+export type { SpinnerProps } from './Spinner';

@@ -50,7 +50,7 @@ development_status:
 
   epic-2: in-progress
   2-0-project-scope-and-problematique-setup: done
-  2-1-reusable-ui-components-library: backlog
+  2-1-reusable-ui-components-library: review
   2-2-document-data-model-and-storage-setup: backlog
   2-3-single-pdf-upload-endpoint: backlog
   2-4-pdf-text-extraction-pipeline: backlog

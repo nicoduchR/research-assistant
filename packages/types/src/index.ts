@@ -15,7 +15,9 @@ export interface User {
 // Research Scope (Story 2.0)
 export type { ResearchScope, CreateResearchScopeDto } from './research';
 
+// Document types (Story 2.1+)
+export type { Document, CreateDocumentDto, UpdateDocumentDto } from './document';
+
 // Future types to be implemented:
-// - Document (Story 2.3+)
 // - LiteratureReview (Story 3.x+)
 // - ProcessingJob (Story 3.x+)
