@@ -25,3 +25,12 @@ export type {
   ProcessingJobResponse,
 } from './processing';
 export { ProcessingJobStatus } from './processing';
+
+// AI types (Story 3.2)
+export type {
+  DocumentMetadata,
+  GenerateLiteratureReviewInput,
+  CitationResult,
+  LiteratureReviewResult,
+  AiHealthResponse,
+} from './ai';
