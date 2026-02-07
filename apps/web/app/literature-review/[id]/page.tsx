@@ -10,6 +10,7 @@ import { LiteratureReviewEditor } from '@/src/components/features/literature-rev
 import { ToastContainer } from '@/src/components/molecules/Toast/ToastContainer';
 import Header from '@/src/components/Header';
 import { MethodologyProgressTracker } from '@/src/components/features/literature-review/MethodologyProgressTracker';
+import { BibliographySection } from '@/src/components/features/literature-review/BibliographySection';
 import { getProcessingJob } from '@/src/lib/api/processing';
 import type { ProcessingJobResponse } from '@repo/types';
 
@@ -94,10 +95,11 @@ export default function LiteratureReviewPage() {
     day: 'numeric',
   });
 
-  // Map documents for citation tooltips
+  // Map documents for citation tooltips and bibliography
   const documentInfos = documents.map((doc) => ({
     id: doc.id,
     fileName: doc.fileName,
+    bibliographicMetadata: doc.bibliographicMetadata ?? null,
   }));
 
   return (
@@ -180,6 +182,15 @@ export default function LiteratureReviewPage() {
                 <LiteratureReviewContent review={review} documents={documentInfos} />
               )}
             </div>
+
+            {/* Bibliography Section */}
+            {!isEditing && review.citations.length > 0 && (
+              <BibliographySection
+                reviewId={reviewId}
+                citations={review.citations}
+                documents={documentInfos}
+              />
+            )}
           </div>
 
           {/* Secondary column: methodology tracker */}

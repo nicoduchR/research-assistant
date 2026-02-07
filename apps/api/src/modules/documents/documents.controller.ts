@@ -80,6 +80,7 @@ export class DocumentsController {
       pageCount: doc.pageCount,
       textExtracted: doc.textExtracted,
       extractionError: doc.extractionError,
+      bibliographicMetadata: doc.bibliographicMetadata ?? null,
       uploadedAt: doc.uploadedAt.toISOString(),
       updatedAt: doc.updatedAt.toISOString(),
     }));

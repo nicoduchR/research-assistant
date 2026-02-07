@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Job } from 'bullmq';
 import { ResearchDocument } from '../entities/research-document.entity';
+import { BibliographyMetadataService } from '../modules/documents/bibliography-metadata.service';
 import * as fs from 'fs/promises';
 import { PDFParse } from 'pdf-parse';
 
@@ -21,6 +22,7 @@ export class PdfExtractionProcessor extends WorkerHost {
   constructor(
     @InjectRepository(ResearchDocument)
     private documentRepository: Repository<ResearchDocument>,
+    private readonly bibliographyMetadataService: BibliographyMetadataService,
   ) {
     super();
   }
@@ -99,6 +101,32 @@ export class PdfExtractionProcessor extends WorkerHost {
           `PDF extraction completed for document ${documentId}: ` +
             `${pageCount} pages, ${extractedText.length} characters`,
         );
+
+        // Step 6: Extract bibliographic metadata (non-blocking)
+        try {
+          const pdfInfo = await parser.getInfo();
+          const info = pdfInfo?.info;
+          const metadata =
+            await this.bibliographyMetadataService.extractMetadataFromPdf(
+              {
+                Title: info?.Title,
+                Author: info?.Author,
+                CreationDate: info?.CreationDate,
+              },
+              extractedText,
+            );
+          await this.documentRepository.update(documentId, {
+            bibliographicMetadata: metadata,
+          });
+          this.logger.log(
+            `Bibliographic metadata extracted for document ${documentId}`,
+          );
+        } catch (metadataError) {
+          this.logger.warn(
+            `Bibliographic metadata extraction failed for document ${documentId}: ${metadataError instanceof Error ? metadataError.message : String(metadataError)}`,
+          );
+          // Non-fatal — PDF extraction itself succeeded
+        }
       } finally {
         await parser.destroy();
       }

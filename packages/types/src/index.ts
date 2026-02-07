@@ -16,7 +16,19 @@ export interface User {
 export type { ResearchScope, CreateResearchScopeDto } from './research';
 
 // Document types (Story 2.1+)
-export type { Document, CreateDocumentDto, UpdateDocumentDto } from './document';
+export type {
+  Document,
+  CreateDocumentDto,
+  UpdateDocumentDto,
+  BibliographicMetadata,
+} from './document';
+
+// Bibliography export types (Story 3.10)
+export type {
+  BibliographyExportFormat,
+  BibliographyExportResponse,
+  BibliographyEntry,
+} from './bibliography';
 
 // Processing Job types (Story 3.1)
 export type {

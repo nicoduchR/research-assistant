@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HttpModule } from '@nestjs/axios';
 import { ResearchDocument } from '../../entities/research-document.entity';
 import { ProcessingJob } from '../../entities/processing-job.entity';
 import { LiteratureReview } from '../../entities/literature-review.entity';
@@ -9,6 +10,7 @@ import { AiModule } from '../ai/ai.module';
 import { ProcessingGatewayModule } from '../../gateways/processing-gateway.module';
 import { PdfExtractionProcessor } from '../../jobs/pdf-extraction.processor';
 import { LiteratureProcessingProcessor } from '../../jobs/literature-processing.processor';
+import { BibliographyMetadataService } from '../documents/bibliography-metadata.service';
 import { ProcessingService } from './processing.service';
 import { ProcessingController } from './processing.controller';
 
@@ -39,10 +41,11 @@ import { ProcessingController } from './processing.controller';
       },
     }),
     TypeOrmModule.forFeature([ResearchDocument, ProcessingJob, LiteratureReview, Citation]),
+    HttpModule,
     AiModule,
     ProcessingGatewayModule,
   ],
-  providers: [PdfExtractionProcessor, LiteratureProcessingProcessor, ProcessingService],
+  providers: [PdfExtractionProcessor, LiteratureProcessingProcessor, BibliographyMetadataService, ProcessingService],
   controllers: [ProcessingController],
   exports: [BullModule], // Export queues for other modules
 })

@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.72.1",
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.1.12",
     "@nestjs/config": "^4.0.2",
@@ -32,7 +33,9 @@
     "@nestjs/websockets": "^11.1.12",
     "@repo/types": "workspace:*",
     "@repo/utils": "workspace:*",
+    "axios": "^1.6.8",
     "bullmq": "^5.67.2",
+    "citation-js": "^0.7.22",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "cookie-parser": "^1.4.7",

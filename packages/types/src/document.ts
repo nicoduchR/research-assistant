@@ -1,3 +1,17 @@
+export interface BibliographicMetadata {
+  authors?: Array<{ given: string; family: string }>;
+  title?: string;
+  year?: number;
+  journal?: string;
+  volume?: string;
+  issue?: string;
+  pages?: string;
+  doi?: string;
+  publisher?: string;
+  url?: string;
+  type?: string;
+}
+
 /**
  * Document entity type (Story 2.2)
  * Represents an uploaded PDF document with metadata
@@ -14,6 +28,7 @@ export interface Document {
   textExtracted: boolean;
   extractionError: string | null;
   extractedText: string | null;
+  bibliographicMetadata?: BibliographicMetadata | null;
   uploadedAt: Date | string;
   updatedAt: Date | string;
 }

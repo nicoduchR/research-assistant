@@ -52,6 +52,21 @@ export class ResearchDocument {
   @Column({ name: 'extracted_text', type: 'text', nullable: true })
   extractedText: string | null;
 
+  @Column({ type: 'jsonb', nullable: true, name: 'bibliographic_metadata' })
+  bibliographicMetadata: {
+    authors?: Array<{ given: string; family: string }>;
+    title?: string;
+    year?: number;
+    journal?: string;
+    volume?: string;
+    issue?: string;
+    pages?: string;
+    doi?: string;
+    publisher?: string;
+    url?: string;
+    type?: string;
+  } | null;
+
   @CreateDateColumn({ name: 'uploaded_at' })
   uploadedAt: Date;
 

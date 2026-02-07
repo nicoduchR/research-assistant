@@ -189,6 +189,7 @@ export class DocumentsService {
         'pageCount',
         'textExtracted',
         'extractionError',
+        'bibliographicMetadata',
         'uploadedAt',
         'updatedAt',
       ],
