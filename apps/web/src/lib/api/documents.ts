@@ -1,4 +1,4 @@
-import apiClient from './axiosInstance';
+import apiClient, { API_BASE_URL } from './axiosInstance';
 import { Document } from '@repo/types';
 
 export const uploadDocument = async (
@@ -27,4 +27,8 @@ export const listDocuments = async (): Promise<Document[]> => {
 
 export const deleteDocument = async (id: string): Promise<void> => {
   await apiClient.delete(`/documents/${id}`);
+};
+
+export const getDocumentFileUrl = (documentId: string): string => {
+  return `${API_BASE_URL}/api/v1/documents/${documentId}/file`;
 };

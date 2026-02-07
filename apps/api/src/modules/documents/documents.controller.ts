@@ -8,9 +8,12 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Res,
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  ParseUUIDPipe,
+  StreamableFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
@@ -18,6 +21,8 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { DocumentsService } from './documents.service';
 import { DocumentResponseDto, DocumentListItemDto } from './dto/document-response.dto';
 import { memoryStorage } from 'multer';
+import { createReadStream } from 'fs';
+import { Response } from 'express';
 
 // Extract constant to avoid duplication
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -90,12 +95,38 @@ export class DocumentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteDocument(
     @Req() req: any,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
     if (!req.user || !req.user.userId) {
       throw new BadRequestException('Invalid authentication token');
     }
 
     return this.documentsService.deleteDocument(id, req.user.userId);
+  }
+
+  @Get(':id/file')
+  async getDocumentFile(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    if (!req.user || !req.user.userId) {
+      throw new BadRequestException('Invalid authentication token');
+    }
+
+    const { document, filePath } =
+      await this.documentsService.getDocumentForServing(id, req.user.userId);
+
+    const asciiFilename = document.fileName.replace(/[^\x20-\x7E]/g, '_');
+    const encodedFilename = encodeURIComponent(document.fileName);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="${asciiFilename}"; filename*=UTF-8''${encodedFilename}`,
+      'Content-Length': document.fileSize.toString(),
+    });
+
+    const fileStream = createReadStream(filePath);
+    return new StreamableFile(fileStream);
   }
 }

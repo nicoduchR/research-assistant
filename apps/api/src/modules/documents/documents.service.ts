@@ -5,6 +5,7 @@ import {
   PayloadTooLargeException,
   InternalServerErrorException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -219,5 +220,36 @@ export class DocumentsService {
     // Delete database record
     await this.documentRepository.remove(document);
     this.logger.log(`Deleted document record: documentId=${documentId}`);
+  }
+
+  async getDocumentForServing(
+    documentId: string,
+    userId: string,
+  ): Promise<{ document: ResearchDocument; filePath: string }> {
+    const document = await this.documentRepository.findOne({
+      where: { id: documentId },
+    });
+
+    if (!document) {
+      throw new NotFoundException('Document not found');
+    }
+
+    if (document.userId !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to view this document',
+      );
+    }
+
+    const filePath = document.storagePath;
+    try {
+      await fs.access(filePath);
+    } catch {
+      this.logger.error(
+        `File not found on filesystem: ${filePath} for document ${documentId}`,
+      );
+      throw new InternalServerErrorException('File not found on server');
+    }
+
+    return { document, filePath };
   }
 }
