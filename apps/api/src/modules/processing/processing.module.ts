@@ -9,6 +9,8 @@ import { AiModule } from '../ai/ai.module';
 import { ProcessingGatewayModule } from '../../gateways/processing-gateway.module';
 import { PdfExtractionProcessor } from '../../jobs/pdf-extraction.processor';
 import { LiteratureProcessingProcessor } from '../../jobs/literature-processing.processor';
+import { ProcessingService } from './processing.service';
+import { ProcessingController } from './processing.controller';
 
 @Module({
   imports: [
@@ -40,7 +42,8 @@ import { LiteratureProcessingProcessor } from '../../jobs/literature-processing.
     AiModule,
     ProcessingGatewayModule,
   ],
-  providers: [PdfExtractionProcessor, LiteratureProcessingProcessor],
+  providers: [PdfExtractionProcessor, LiteratureProcessingProcessor, ProcessingService],
+  controllers: [ProcessingController],
   exports: [BullModule], // Export queues for other modules
 })
 export class ProcessingModule {}

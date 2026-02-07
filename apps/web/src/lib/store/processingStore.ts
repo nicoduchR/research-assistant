@@ -12,6 +12,7 @@ interface ProcessingState {
   progressMessage: string | null;
   resultId: string | null;
   errorMessage: string | null;
+  lastDocumentIds: string[];
 }
 
 interface ProcessingActions {
@@ -29,13 +30,14 @@ const initialState: ProcessingState = {
   progressMessage: null,
   resultId: null,
   errorMessage: null,
+  lastDocumentIds: [],
 };
 
 export const useProcessingStore = create<ProcessingStore>()((set, get) => ({
   ...initialState,
 
   startProcessing: async (documentIds: string[]) => {
-    set({ ...initialState, status: 'queued' });
+    set({ ...initialState, status: 'queued', lastDocumentIds: documentIds });
 
     try {
       const job = await processingApi.createProcessingJob(documentIds);

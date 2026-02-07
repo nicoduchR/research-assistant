@@ -15,6 +15,7 @@ import { DocumentsModule } from './modules/documents/documents.module';
 import { ProcessingModule } from './modules/processing/processing.module';
 import { AiModule } from './modules/ai/ai.module';
 import { ProcessingGatewayModule } from './gateways/processing-gateway.module';
+import { LiteratureReviewsModule } from './modules/literature-reviews/literature-reviews.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ProcessingGatewayModule } from './gateways/processing-gateway.module';
     ProcessingModule,
     AiModule,
     ProcessingGatewayModule,
+    LiteratureReviewsModule,
   ],
   controllers: [AppController],
   providers: [

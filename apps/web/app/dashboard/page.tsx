@@ -7,6 +7,8 @@ import { useDocumentStore } from '@/src/lib/store/documentStore';
 import { ScopeSetupModal } from '@/src/components/features/research/ScopeSetupModal';
 import { UploadZone } from '@/src/components/features/upload/UploadZone';
 import { DocumentList } from '@/src/components/features/upload/DocumentList';
+import { GenerateReviewButton } from '@/src/components/features/processing/GenerateReviewButton';
+import { ProcessingProgressModal } from '@/src/components/features/processing/ProcessingProgressModal';
 import { ToastContainer } from '@/src/components/molecules/Toast/ToastContainer';
 import Header from '@/src/components/Header';
 
@@ -141,9 +143,19 @@ export default function DashboardPage() {
           <UploadZone />
         </div>
 
+        {/* Generate Literature Review Button */}
+        {hasDocuments && (
+          <div className="mb-8">
+            <GenerateReviewButton />
+          </div>
+        )}
+
         {/* Document List */}
         <DocumentList />
       </main>
+
+      {/* Processing Progress Modal */}
+      <ProcessingProgressModal />
 
       {/* Global Toast Notifications */}
       <ToastContainer />
