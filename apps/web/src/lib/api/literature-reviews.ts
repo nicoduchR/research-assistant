@@ -26,3 +26,14 @@ export const getLiteratureReview = async (
   );
   return response.data;
 };
+
+export const updateLiteratureReview = async (
+  reviewId: string,
+  data: { title?: string; content?: string },
+): Promise<LiteratureReviewResponse> => {
+  const response = await apiClient.put<LiteratureReviewResponse>(
+    `/literature-reviews/${reviewId}`,
+    data,
+  );
+  return response.data;
+};

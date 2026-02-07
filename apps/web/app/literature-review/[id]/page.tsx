@@ -1,29 +1,119 @@
 'use client';
 
-import React from 'react';
-import { useParams } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useLiteratureReviewStore } from '@/src/lib/store/literatureReviewStore';
+import { useDocumentStore } from '@/src/lib/store/documentStore';
+import { useToastStore } from '@/src/lib/store/toastStore';
+import { LiteratureReviewContent } from '@/src/components/features/literature-review/LiteratureReviewContent';
+import { LiteratureReviewEditor } from '@/src/components/features/literature-review/LiteratureReviewEditor';
+import { ToastContainer } from '@/src/components/molecules/Toast/ToastContainer';
 import Header from '@/src/components/Header';
 
 export default function LiteratureReviewPage() {
   const params = useParams();
-  const id = params.id as string;
+  const router = useRouter();
+  const reviewId = params.id as string;
+
+  const { review, isLoading, error, isEditing, fetchReview, startEditing, reset } =
+    useLiteratureReviewStore();
+  const { documents, fetchDocuments } = useDocumentStore();
+  const addToast = useToastStore((s) => s.addToast);
+
+  useEffect(() => {
+    if (reviewId) {
+      fetchReview(reviewId);
+      fetchDocuments();
+    }
+    return () => {
+      reset();
+    };
+  }, [reviewId, fetchReview, fetchDocuments, reset]);
+
+  useEffect(() => {
+    if (error) {
+      addToast(error, 'error');
+      router.push('/dashboard');
+    }
+  }, [error, addToast, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+        <Header />
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
+              <p className="text-slate-600 dark:text-slate-400">Loading literature review...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!review) {
+    return null;
+  }
+
+  const formattedDate = new Date(review.createdAt).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+
+  // Map documents for citation tooltips
+  const documentInfos = documents.map((doc) => ({
+    id: doc.id,
+    fileName: doc.fileName,
+  }));
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center">
-          <span className="material-symbols-outlined text-6xl text-primary mb-4 block">
-            description
-          </span>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-            Literature Review
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Literature review {id} — Full display coming in Story 3.7
-          </p>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back to Dashboard link */}
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="inline-flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary mb-6 transition-colors"
+        >
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          Back to Dashboard
+        </button>
+
+        {/* Review header */}
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+              {review.title}
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {formattedDate}
+            </p>
+          </div>
+          {!isEditing && (
+            <button
+              onClick={startEditing}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">edit</span>
+              Edit
+            </button>
+          )}
+        </div>
+
+        {/* Content or Editor */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8">
+          {isEditing ? (
+            <LiteratureReviewEditor reviewId={reviewId} />
+          ) : (
+            <LiteratureReviewContent review={review} documents={documentInfos} />
+          )}
         </div>
       </main>
+
+      <ToastContainer />
     </div>
   );
 }

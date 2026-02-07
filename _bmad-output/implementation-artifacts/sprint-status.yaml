@@ -66,7 +66,7 @@ development_status:
   3-4-citation-traceability-system: done
   3-5-real-time-progress-updates-via-websocket: done
   3-6-initiate-processing-and-progress-display: done
-  3-7-literature-review-display-and-editing: backlog
+  3-7-literature-review-display-and-editing: done
   3-8-methodology-progress-tracker: backlog
   3-9-error-handling-and-partial-results: backlog
   3-10-bibliography-export-and-citation-formatting: backlog
