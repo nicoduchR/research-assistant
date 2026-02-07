@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useLiteratureReviewStore } from '@/src/lib/store/literatureReviewStore';
 import { useDocumentStore } from '@/src/lib/store/documentStore';
@@ -10,6 +10,14 @@ import { LiteratureReviewEditor } from '@/src/components/features/literature-rev
 import { ToastContainer } from '@/src/components/molecules/Toast/ToastContainer';
 import Header from '@/src/components/Header';
 import { MethodologyProgressTracker } from '@/src/components/features/literature-review/MethodologyProgressTracker';
+import { getProcessingJob } from '@/src/lib/api/processing';
+import type { ProcessingJobResponse } from '@repo/types';
+
+interface SkippedDoc {
+  documentId: string;
+  fileName: string;
+  reason: string;
+}
 
 export default function LiteratureReviewPage() {
   const params = useParams();
@@ -21,6 +29,22 @@ export default function LiteratureReviewPage() {
   const { documents, fetchDocuments } = useDocumentStore();
   const addToast = useToastStore((s) => s.addToast);
 
+  const [skippedDocuments, setSkippedDocuments] = useState<SkippedDoc[]>([]);
+  const [processedDocumentCount, setProcessedDocumentCount] = useState<number | null>(null);
+  const [bannerExpanded, setBannerExpanded] = useState(false);
+
+  const fetchJobMetadata = useCallback(async (jobId: string) => {
+    try {
+      const job: ProcessingJobResponse = await getProcessingJob(jobId);
+      if (job.skippedDocuments && job.skippedDocuments.length > 0) {
+        setSkippedDocuments(job.skippedDocuments);
+        setProcessedDocumentCount(job.processedDocumentCount ?? null);
+      }
+    } catch {
+      // Non-critical — don't block review display
+    }
+  }, []);
+
   useEffect(() => {
     if (reviewId) {
       fetchReview(reviewId);
@@ -30,6 +54,12 @@ export default function LiteratureReviewPage() {
       reset();
     };
   }, [reviewId, fetchReview, fetchDocuments, reset]);
+
+  useEffect(() => {
+    if (review?.jobId) {
+      fetchJobMetadata(review.jobId);
+    }
+  }, [review?.jobId, fetchJobMetadata]);
 
   useEffect(() => {
     if (error) {
@@ -106,6 +136,41 @@ export default function LiteratureReviewPage() {
                 </button>
               )}
             </div>
+
+            {/* Partial Result Warning Banner */}
+            {skippedDocuments.length > 0 && processedDocumentCount != null && (
+              <div className="mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4">
+                <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                  <span className="material-symbols-outlined text-amber-600 dark:text-amber-400">info</span>
+                  <span className="font-medium">
+                    This literature review was generated from {processedDocumentCount} of{' '}
+                    {processedDocumentCount + skippedDocuments.length} documents.{' '}
+                    {skippedDocuments.length} document(s) were skipped.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="mt-2 text-sm text-amber-700 dark:text-amber-300 underline cursor-pointer"
+                  onClick={() => setBannerExpanded(!bannerExpanded)}
+                >
+                  {bannerExpanded ? 'Hide details' : 'Show details'}
+                </button>
+                {bannerExpanded && (
+                  <div className="mt-2 text-sm text-amber-700 dark:text-amber-300">
+                    <ul className="space-y-1">
+                      {skippedDocuments.map((doc) => (
+                        <li key={doc.documentId}>
+                          &bull; {doc.fileName} &mdash; {doc.reason}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 italic text-amber-600 dark:text-amber-400">
+                      Consider re-scanning with OCR or finding text-based versions of skipped documents.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Content or Editor */}
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8">

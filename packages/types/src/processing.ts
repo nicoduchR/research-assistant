@@ -5,6 +5,12 @@ export enum ProcessingJobStatus {
   FAILED = 'failed',
 }
 
+export interface SkippedDocument {
+  documentId: string;
+  fileName: string;
+  reason: string;
+}
+
 export interface ProcessingJob {
   id: string;
   userId: string;
@@ -18,6 +24,8 @@ export interface ProcessingJob {
   startedAt: Date | null;
   completedAt: Date | null;
   updatedAt: Date;
+  skippedDocuments?: SkippedDocument[];
+  processedDocumentCount?: number;
 }
 
 export interface CreateProcessingJobDto {
@@ -35,4 +43,7 @@ export interface ProcessingJobResponse {
   queuedAt: string;
   startedAt: string | null;
   completedAt: string | null;
+  skippedDocuments?: SkippedDocument[];
+  processedDocumentCount?: number;
+  failureType?: 'no_documents' | 'ai_error' | 'unknown';
 }

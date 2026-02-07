@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Anthropic from '@anthropic-ai/sdk';
+import { UnrecoverableError } from 'bullmq';
 import { getAnthropicClient } from '../../config/anthropic.config';
 import type {
   DocumentMetadata,
@@ -151,26 +152,46 @@ export class AiService implements OnModuleInit {
       const logMeta = meta ? ` | ${JSON.stringify(meta)}` : '';
       switch (error.status) {
         case 401:
+          // Non-retryable: bad API key
           this.logger.error(`Invalid Anthropic API key [${context}]${logMeta}`);
-          throw new Error('AI service authentication failed');
+          throw new UnrecoverableError(
+            'AI service authentication failed. Contact administrator.',
+          );
+        case 400:
+          // Non-retryable: bad request
+          this.logger.error(
+            `Anthropic bad request [${context}]${logMeta}`,
+          );
+          throw new UnrecoverableError(`AI service error: ${error.message}`);
         case 429:
+          // Retryable: rate limited
           this.logger.warn(
             `Anthropic rate limit exceeded [${context}]${logMeta}`,
           );
-          throw new Error('AI service rate limited - please retry later');
+          throw new Error('AI service rate limited. Retrying...');
         case 500:
         case 503:
+          // Retryable: server issues
           this.logger.error(
             `Anthropic service unavailable [${context}]${logMeta}`,
           );
-          throw new Error('AI service temporarily unavailable');
+          throw new Error('AI service temporarily unavailable. Retrying...');
         default:
+          // Non-retryable: unknown client error
           this.logger.error(
             `Anthropic API error: ${error.status} ${error.message} [${context}]${logMeta}`,
           );
-          throw new Error(`AI service error: ${error.message}`);
+          throw new UnrecoverableError(`AI service error: ${error.message}`);
       }
     }
-    throw error;
+    // Network errors are retryable
+    const logMeta = meta ? ` | ${JSON.stringify(meta)}` : '';
+    this.logger.error(
+      `AI service connection error [${context}]${logMeta}: ${(error as Error).message}`,
+      (error as Error).stack,
+    );
+    throw new Error(
+      `AI service unavailable. Please try again later.`,
+    );
   }
 }

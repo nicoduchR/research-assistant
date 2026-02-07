@@ -17,10 +17,17 @@ export interface CompleteEvent {
   jobId: string;
   resultId: string;
   timestamp: string;
+  skippedDocuments?: Array<{
+    documentId: string;
+    fileName: string;
+    reason: string;
+  }>;
+  processedDocumentCount?: number;
 }
 
 export interface ErrorEvent {
   jobId: string;
   errorMessage: string;
   timestamp: string;
+  failureType?: 'no_documents' | 'ai_error' | 'unknown';
 }

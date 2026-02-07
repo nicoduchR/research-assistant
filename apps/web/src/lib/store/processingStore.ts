@@ -5,6 +5,12 @@ import * as processingApi from '../api/processing';
 
 type ProcessingStatus = 'idle' | 'queued' | 'processing' | 'completed' | 'failed';
 
+interface SkippedDocument {
+  documentId: string;
+  fileName: string;
+  reason: string;
+}
+
 interface ProcessingState {
   activeJobId: string | null;
   status: ProcessingStatus;
@@ -13,6 +19,9 @@ interface ProcessingState {
   resultId: string | null;
   errorMessage: string | null;
   lastDocumentIds: string[];
+  skippedDocuments: SkippedDocument[];
+  processedDocumentCount: number | null;
+  failureType: 'no_documents' | 'ai_error' | 'unknown' | null;
 }
 
 interface ProcessingActions {
@@ -31,6 +40,9 @@ const initialState: ProcessingState = {
   resultId: null,
   errorMessage: null,
   lastDocumentIds: [],
+  skippedDocuments: [],
+  processedDocumentCount: null,
+  failureType: null,
 };
 
 export const useProcessingStore = create<ProcessingStore>()((set, get) => ({
@@ -69,6 +81,8 @@ export const useProcessingStore = create<ProcessingStore>()((set, get) => ({
             progressPercentage: 100,
             progressMessage: 'Complete',
             resultId: payload.resultId,
+            skippedDocuments: payload.skippedDocuments || [],
+            processedDocumentCount: payload.processedDocumentCount ?? null,
           });
         }
       });
@@ -78,6 +92,7 @@ export const useProcessingStore = create<ProcessingStore>()((set, get) => ({
           set({
             status: 'failed',
             errorMessage: payload.errorMessage,
+            failureType: payload.failureType || null,
           });
         }
       });
@@ -108,6 +123,9 @@ export const useProcessingStore = create<ProcessingStore>()((set, get) => ({
         progressMessage: job.progressMessage,
         resultId: job.resultId,
         errorMessage: job.errorMessage,
+        skippedDocuments: job.skippedDocuments || [],
+        processedDocumentCount: job.processedDocumentCount ?? null,
+        failureType: job.failureType ?? null,
       });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to sync job status';

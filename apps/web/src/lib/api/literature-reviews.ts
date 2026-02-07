@@ -2,6 +2,7 @@ import apiClient from './axiosInstance';
 
 export interface LiteratureReviewResponse {
   id: string;
+  jobId: string;
   title: string;
   content: string;
   documentIds: string[];

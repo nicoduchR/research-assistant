@@ -11,4 +11,11 @@ export class ProcessingJobResponseDto {
   queuedAt: string;
   startedAt: string | null;
   completedAt: string | null;
+  skippedDocuments?: Array<{
+    documentId: string;
+    fileName: string;
+    reason: string;
+  }>;
+  processedDocumentCount?: number;
+  failureType?: 'no_documents' | 'ai_error' | 'unknown';
 }

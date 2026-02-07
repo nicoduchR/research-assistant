@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useProcessingStore } from '@/src/lib/store/processingStore';
 import { Dialog } from '@/src/components/atoms/Dialog';
 import { Button } from '@/src/components/atoms/Button';
@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 
 export const ProcessingProgressModal: React.FC = () => {
   const router = useRouter();
+  const [skippedExpanded, setSkippedExpanded] = useState(false);
   const {
     status,
     progressPercentage,
@@ -15,6 +16,9 @@ export const ProcessingProgressModal: React.FC = () => {
     resultId,
     errorMessage,
     lastDocumentIds,
+    skippedDocuments,
+    processedDocumentCount,
+    failureType,
     startProcessing,
     resetProcessing,
   } = useProcessingStore();
@@ -99,6 +103,36 @@ export const ProcessingProgressModal: React.FC = () => {
                 Complete! Loading your literature review...
               </p>
             </div>
+            {skippedDocuments.length > 0 && processedDocumentCount != null && (
+              <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg text-left">
+                <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200 font-medium">
+                  <span className="material-symbols-outlined text-amber-600 dark:text-amber-400">warning</span>
+                  Literature review generated from {processedDocumentCount} of{' '}
+                  {processedDocumentCount + skippedDocuments.length} documents
+                </div>
+                <div className="mt-2 text-sm text-amber-700 dark:text-amber-300">
+                  <button
+                    type="button"
+                    className="font-medium underline cursor-pointer"
+                    onClick={() => setSkippedExpanded(!skippedExpanded)}
+                  >
+                    {skippedExpanded ? 'Hide' : 'Show'} skipped documents ({skippedDocuments.length})
+                  </button>
+                  {skippedExpanded && (
+                    <ul className="mt-1 space-y-1">
+                      {skippedDocuments.map((doc) => (
+                        <li key={doc.documentId}>
+                          &bull; {doc.fileName} &mdash; {doc.reason}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <p className="mt-2 text-amber-600 dark:text-amber-400 italic">
+                    Consider re-scanning with OCR or finding text-based versions of skipped documents.
+                  </p>
+                </div>
+              </div>
+            )}
             <Button variant="primary" onClick={handleViewReview}>
               View Literature Review
             </Button>
@@ -110,9 +144,15 @@ export const ProcessingProgressModal: React.FC = () => {
           <div className="space-y-md">
             <div className="flex items-start gap-sm text-error">
               <span className="material-symbols-outlined mt-0.5">error</span>
-              <p className="text-body">
-                Processing failed: {errorMessage || 'An unexpected error occurred'}
-              </p>
+              <div className="text-body">
+                {failureType === 'no_documents' ? (
+                  <p>No documents with extracted text available. Please upload text-based PDFs.</p>
+                ) : failureType === 'ai_error' ? (
+                  <p>AI service unavailable. Please try again later.</p>
+                ) : (
+                  <p>{errorMessage || 'An unexpected error occurred'}</p>
+                )}
+              </div>
             </div>
             <div className="flex items-center justify-end gap-sm">
               <Button variant="secondary" onClick={handleClose}>

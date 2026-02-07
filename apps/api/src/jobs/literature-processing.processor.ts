@@ -65,46 +65,65 @@ export class LiteratureProcessingProcessor extends WorkerHost {
         where: { id: In(documentIds) },
       });
 
-      // 2. Filter to documents with extracted text
+      // 2. Partition documents into valid (have text) and skipped (no text)
       const validDocs = documents.filter(
         (d) => d.textExtracted && d.extractedText,
+      );
+      const skippedDocs = documents.filter(
+        (d) => !d.textExtracted || !d.extractedText,
       );
 
       this.logger.log(
         `Found ${documents.length} documents, ${validDocs.length} with extracted text`,
       );
 
-      // 3. Fail if no documents have extracted text
-      if (validDocs.length === 0) {
-        throw new Error('No documents with extracted text available');
+      // 3. Save skipped document metadata to job
+      const skippedMetadata =
+        skippedDocs.length > 0
+          ? skippedDocs.map((d) => ({
+              documentId: d.id,
+              fileName: d.fileName,
+              reason: d.extractionError || 'Text extraction not available',
+            }))
+          : undefined;
+      if (skippedMetadata) {
+        await this.processingJobRepository.update(processingJobId, {
+          skippedDocuments: skippedMetadata,
+        });
+        for (const doc of skippedDocs) {
+          this.logger.warn(
+            `Skipping document ${doc.fileName} - ${doc.extractionError || 'no text extracted (scanned PDF)'}`,
+          );
+        }
       }
 
-      const skippedCount = documents.length - validDocs.length;
-      if (skippedCount > 0) {
-        const skippedIds = documents
-          .filter((d) => !d.textExtracted || !d.extractedText)
-          .map((d) => d.id);
-        this.logger.warn(
-          `Skipped ${skippedCount} documents without extracted text: ${skippedIds.join(', ')}`,
+      // 4. Fail if no documents have extracted text
+      if (validDocs.length === 0) {
+        throw new Error(
+          'No documents with extracted text available. Please upload text-based PDFs.',
         );
       }
 
-      // 4. Update progress: 10% "Preparing documents..."
+      // 5. Update progress: 10% with partial processing info
+      const progressMsg =
+        skippedDocs.length > 0
+          ? `Processing ${validDocs.length} of ${documents.length} documents (${skippedDocs.length} skipped)`
+          : 'Preparing documents...';
       await this.processingJobRepository.update(processingJobId, {
         progressPercentage: 10,
-        progressMessage: 'Preparing documents...',
+        progressMessage: progressMsg,
       });
       try {
         this.processingGateway.emitProgress(userId, {
           jobId: processingJobId,
           progressPercentage: 10,
-          progressMessage: 'Preparing documents...',
+          progressMessage: progressMsg,
         });
       } catch (wsError) {
         this.logger.warn(`WebSocket emit failed: ${wsError}`);
       }
 
-      // 5. Build AI input
+      // 6. Build AI input
       const docMetadata: DocumentMetadata[] = validDocs.map((d) => ({
         id: d.id,
         fileName: d.fileName,
@@ -234,18 +253,26 @@ export class LiteratureProcessingProcessor extends WorkerHost {
         }
       }
 
-      // 9. Complete: link review, update progress, and mark as completed
+      // 9. Complete: link review, update progress, track partial results, and mark as completed
+      const partialErrorMessage =
+        skippedDocs.length > 0
+          ? `Literature review generated from ${validDocs.length} of ${documents.length} documents. ${skippedDocs.length} document(s) could not be processed.`
+          : null;
       await this.processingJobRepository.update(processingJobId, {
         resultId: saved.id,
         status: ProcessingJobStatus.COMPLETED,
         progressPercentage: 100,
         progressMessage: 'Complete',
         completedAt: new Date(),
+        processedDocumentCount: validDocs.length,
+        errorMessage: partialErrorMessage,
       });
       try {
         this.processingGateway.emitComplete(userId, {
           jobId: processingJobId,
           resultId: saved.id,
+          skippedDocuments: skippedMetadata,
+          processedDocumentCount: validDocs.length,
         });
       } catch (wsError) {
         this.logger.warn(`WebSocket emit failed: ${wsError}`);
@@ -253,27 +280,47 @@ export class LiteratureProcessingProcessor extends WorkerHost {
     } catch (error) {
       const err =
         error instanceof Error ? error : new Error(String(error));
+      const maxAttempts = job.opts?.attempts ?? 1;
+      const isLastAttempt = (job.attemptsMade ?? 0) >= maxAttempts - 1;
 
-      // Transition: processing -> failed
-      try {
-        await this.processingJobRepository.update(processingJobId, {
-          status: ProcessingJobStatus.FAILED,
-          errorMessage: err.message,
-          completedAt: new Date(),
-        });
-      } catch (dbError) {
-        this.logger.error(
-          `Failed to update processing job status for ${processingJobId}: ${dbError instanceof Error ? dbError.message : String(dbError)}`,
+      if (isLastAttempt) {
+        // Final attempt — mark as failed and notify user
+        try {
+          await this.processingJobRepository.update(processingJobId, {
+            status: ProcessingJobStatus.FAILED,
+            errorMessage: err.message,
+            completedAt: new Date(),
+          });
+        } catch (dbError) {
+          this.logger.error(
+            `Failed to update processing job status for ${processingJobId}: ${dbError instanceof Error ? dbError.message : String(dbError)}`,
+          );
+        }
+
+        // Determine failure type for frontend display
+        const failureType: 'no_documents' | 'ai_error' | 'unknown' =
+          err.message.includes('No documents with extracted text')
+            ? 'no_documents'
+            : err.message.includes('AI service') ||
+                err.message.includes('rate limited') ||
+                err.message.includes('unavailable')
+              ? 'ai_error'
+              : 'unknown';
+
+        try {
+          this.processingGateway.emitError(userId, {
+            jobId: processingJobId,
+            errorMessage: err.message,
+            failureType,
+          });
+        } catch (wsError) {
+          this.logger.warn(`WebSocket emit failed: ${wsError}`);
+        }
+      } else {
+        // Intermediate retry — log but don't update entity or notify user
+        this.logger.warn(
+          `Processing job ${processingJobId} attempt ${(job.attemptsMade ?? 0) + 1}/${maxAttempts} failed, will retry: ${err.message}`,
         );
-      }
-
-      try {
-        this.processingGateway.emitError(userId, {
-          jobId: processingJobId,
-          errorMessage: err.message,
-        });
-      } catch (wsError) {
-        this.logger.warn(`WebSocket emit failed: ${wsError}`);
       }
 
       throw err;

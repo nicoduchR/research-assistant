@@ -16,7 +16,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ProcessingService } from './processing.service';
 import { CreateProcessingJobDto } from './dto/create-processing-job.dto';
 import { ProcessingJobResponseDto } from './dto/processing-job-response.dto';
-import { ProcessingJob } from '../../entities/processing-job.entity';
+import { ProcessingJob, ProcessingJobStatus } from '../../entities/processing-job.entity';
 
 @Controller('processing-jobs')
 @UseGuards(JwtAuthGuard)
@@ -55,7 +55,7 @@ export class ProcessingController {
   }
 
   private toResponseDto(job: ProcessingJob): ProcessingJobResponseDto {
-    return {
+    const dto: ProcessingJobResponseDto = {
       id: job.id,
       status: job.status,
       documentIds: job.documentIds,
@@ -67,5 +67,25 @@ export class ProcessingController {
       startedAt: job.startedAt?.toISOString() ?? null,
       completedAt: job.completedAt?.toISOString() ?? null,
     };
+    if (job.skippedDocuments) {
+      dto.skippedDocuments = job.skippedDocuments;
+    }
+    if (job.processedDocumentCount != null) {
+      dto.processedDocumentCount = job.processedDocumentCount;
+    }
+    if (job.status === ProcessingJobStatus.FAILED && job.errorMessage) {
+      if (job.errorMessage.includes('No documents with extracted text')) {
+        dto.failureType = 'no_documents';
+      } else if (
+        job.errorMessage.includes('AI service') ||
+        job.errorMessage.includes('rate limited') ||
+        job.errorMessage.includes('unavailable')
+      ) {
+        dto.failureType = 'ai_error';
+      } else {
+        dto.failureType = 'unknown';
+      }
+    }
+    return dto;
   }
 }

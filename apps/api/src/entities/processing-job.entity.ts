@@ -64,6 +64,16 @@ export class ProcessingJob {
   @Column({ name: 'completed_at', type: 'timestamp', nullable: true })
   completedAt: Date | null;
 
+  @Column({ name: 'skipped_documents', type: 'jsonb', nullable: true })
+  skippedDocuments: Array<{
+    documentId: string;
+    fileName: string;
+    reason: string;
+  }> | null;
+
+  @Column({ name: 'processed_document_count', type: 'int', nullable: true })
+  processedDocumentCount: number | null;
+
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

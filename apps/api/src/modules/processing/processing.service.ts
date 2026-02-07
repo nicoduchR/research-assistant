@@ -57,7 +57,7 @@ export class ProcessingService {
       );
     }
 
-    // Filter to only documents with extracted text
+    // Require at least one document with extracted text, but allow mixed sets
     const extractedDocs = documents.filter((doc) => doc.textExtracted);
     if (extractedDocs.length === 0) {
       throw new BadRequestException(
@@ -65,26 +65,27 @@ export class ProcessingService {
       );
     }
 
-    const extractedDocIds = extractedDocs.map((doc) => doc.id);
+    // Pass ALL document IDs to the processor — it will partition and track skipped docs
+    const allDocIds = documents.map((doc) => doc.id);
 
-    // Create ProcessingJob entity with status QUEUED (only extracted docs)
+    // Create ProcessingJob entity with status QUEUED (all selected docs)
     const job = this.processingJobRepository.create({
       userId,
       status: ProcessingJobStatus.QUEUED,
-      documentIds: extractedDocIds,
+      documentIds: allDocIds,
     });
 
     const savedJob = await this.processingJobRepository.save(job);
 
     this.logger.log(
-      `Created processing job ${savedJob.id} for user ${userId.substring(0, 8)}... with ${extractedDocIds.length} documents`,
+      `Created processing job ${savedJob.id} for user ${userId.substring(0, 8)}... with ${allDocIds.length} documents (${extractedDocs.length} with text)`,
     );
 
-    // Add to BullMQ queue with expected data format (only extracted docs)
+    // Add to BullMQ queue with all document IDs — processor handles partitioning
     await this.literatureQueue.add('generate-review', {
       processingJobId: savedJob.id,
       userId: userId,
-      documentIds: extractedDocIds,
+      documentIds: allDocIds,
     });
 
     this.logger.log(

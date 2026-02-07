@@ -56,6 +56,7 @@ export class LiteratureReviewsController {
   private mapToResponse(review: any) {
     return {
       id: review.id,
+      jobId: review.jobId,
       title: review.title,
       content: review.content,
       documentIds: review.documentIds,
