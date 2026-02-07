@@ -40,3 +40,17 @@ export type {
   LiteratureReview,
   LiteratureReviewResponse,
 } from './literature-review';
+
+// Citation types (Story 3.4)
+export type {
+  Citation,
+  CitationResponse,
+} from './citation';
+
+// WebSocket types (Story 3.5)
+export type {
+  ProgressEvent,
+  CompleteEvent,
+  ErrorEvent,
+} from './websocket';
+export { WS_EVENTS } from './websocket';

@@ -14,6 +14,7 @@ import { StorageModule } from './modules/storage/storage.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { ProcessingModule } from './modules/processing/processing.module';
 import { AiModule } from './modules/ai/ai.module';
+import { ProcessingGatewayModule } from './gateways/processing-gateway.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AiModule } from './modules/ai/ai.module';
     DocumentsModule,
     ProcessingModule,
     AiModule,
+    ProcessingGatewayModule,
   ],
   controllers: [AppController],
   providers: [

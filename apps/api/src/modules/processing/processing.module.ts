@@ -4,7 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResearchDocument } from '../../entities/research-document.entity';
 import { ProcessingJob } from '../../entities/processing-job.entity';
 import { LiteratureReview } from '../../entities/literature-review.entity';
+import { Citation } from '../../entities/citation.entity';
 import { AiModule } from '../ai/ai.module';
+import { ProcessingGatewayModule } from '../../gateways/processing-gateway.module';
 import { PdfExtractionProcessor } from '../../jobs/pdf-extraction.processor';
 import { LiteratureProcessingProcessor } from '../../jobs/literature-processing.processor';
 
@@ -34,8 +36,9 @@ import { LiteratureProcessingProcessor } from '../../jobs/literature-processing.
         removeOnFail: 500,
       },
     }),
-    TypeOrmModule.forFeature([ResearchDocument, ProcessingJob, LiteratureReview]),
+    TypeOrmModule.forFeature([ResearchDocument, ProcessingJob, LiteratureReview, Citation]),
     AiModule,
+    ProcessingGatewayModule,
   ],
   providers: [PdfExtractionProcessor, LiteratureProcessingProcessor],
   exports: [BullModule], // Export queues for other modules
