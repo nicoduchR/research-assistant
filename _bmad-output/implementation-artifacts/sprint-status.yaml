@@ -53,8 +53,8 @@ development_status:
   2-1-reusable-ui-components-library: done
   2-2-document-data-model-and-storage-setup: done
   2-3-single-pdf-upload-endpoint: done
-  2-4-pdf-text-extraction-pipeline: review
-  2-5-drag-and-drop-upload-interface: backlog
+  2-4-pdf-text-extraction-pipeline: done
+  2-5-drag-and-drop-upload-interface: done
   2-6-document-list-view: backlog
   2-7-remove-document-functionality: backlog
   epic-2-retrospective: optional

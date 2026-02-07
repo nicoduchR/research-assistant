@@ -4,6 +4,7 @@ import {
   BadRequestException,
   PayloadTooLargeException,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InjectQueue } from '@nestjs/bull';
@@ -174,5 +175,48 @@ export class DocumentsService {
         'Failed to upload document - please try again',
       );
     }
+  }
+
+  async listDocuments(userId: string): Promise<ResearchDocument[]> {
+    return this.documentRepository.find({
+      where: { userId },
+      order: { uploadedAt: 'DESC' },
+      select: [
+        'id',
+        'fileName',
+        'fileSize',
+        'mimeType',
+        'pageCount',
+        'textExtracted',
+        'extractionError',
+        'uploadedAt',
+        'updatedAt',
+      ],
+    });
+  }
+
+  async deleteDocument(documentId: string, userId: string): Promise<void> {
+    const document = await this.documentRepository.findOne({
+      where: { id: documentId, userId },
+    });
+
+    if (!document) {
+      throw new NotFoundException('Document not found');
+    }
+
+    // Delete file from storage
+    try {
+      await fs.unlink(document.storagePath);
+      this.logger.log(`Deleted file for documentId=${documentId}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.warn(
+        `Could not delete file for documentId=${documentId}: ${message}`,
+      );
+    }
+
+    // Delete database record
+    await this.documentRepository.remove(document);
+    this.logger.log(`Deleted document record: documentId=${documentId}`);
   }
 }

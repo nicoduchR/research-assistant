@@ -3,12 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/src/lib/store/authStore';
 import { useResearchStore } from '@/src/lib/store/researchStore';
+import { useDocumentStore } from '@/src/lib/store/documentStore';
 import { ScopeSetupModal } from '@/src/components/features/research/ScopeSetupModal';
+import { UploadZone } from '@/src/components/features/upload/UploadZone';
+import { DocumentList } from '@/src/components/features/upload/DocumentList';
 import Header from '@/src/components/Header';
 
 export default function DashboardPage() {
   const { user, isLoading, isAuthenticated, initializeAuth } = useAuthStore();
   const { scope, hasCompletedSetup, fetchScope, isLoading: isScopeLoading } = useResearchStore();
+  const { documents } = useDocumentStore();
   const [showScopeModal, setShowScopeModal] = useState(false);
 
   useEffect(() => {
@@ -50,6 +54,8 @@ export default function DashboardPage() {
   if (!user) {
     return null;
   }
+
+  const hasDocuments = documents.length > 0;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -129,73 +135,13 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center text-white mb-4">
-              <span className="material-symbols-outlined text-[24px]">cloud_upload</span>
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-              Upload Documents
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Upload PDF research papers to start your literature review
-            </p>
-            <button className="text-sm font-medium text-primary hover:underline">
-              Get started →
-            </button>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center text-white mb-4">
-              <span className="material-symbols-outlined text-[24px]">analytics</span>
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-              Analyze Literature
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Use AI to synthesize themes and identify research gaps
-            </p>
-            <button className="text-sm font-medium text-primary hover:underline">
-              Start analysis →
-            </button>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow">
-            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center text-white mb-4">
-              <span className="material-symbols-outlined text-[24px]">edit_document</span>
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-              Write Review
-            </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-              Generate your literature review with AI-powered assistance
-            </p>
-            <button className="text-sm font-medium text-primary hover:underline">
-              Continue writing →
-            </button>
-          </div>
+        {/* Upload Zone - large when no documents, compact when documents exist */}
+        <div className={hasDocuments ? 'mb-8' : 'mb-12'}>
+          <UploadZone />
         </div>
 
-        {/* Placeholder Content */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="material-symbols-outlined text-[32px] text-slate-400">
-                library_books
-              </span>
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-              No documents yet
-            </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
-              Upload your first research paper to get started with your literature review
-            </p>
-            <button className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-              Upload Document
-            </button>
-          </div>
-        </div>
+        {/* Document List */}
+        <DocumentList />
       </main>
     </div>
   );

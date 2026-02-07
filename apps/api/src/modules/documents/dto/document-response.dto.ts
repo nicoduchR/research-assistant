@@ -33,3 +33,31 @@ export class DocumentResponseDto {
    */
   uploadedAt: string;
 }
+
+/**
+ * Document List Item DTO
+ *
+ * Extended response for listing documents, includes extraction status fields.
+ * Used by GET /documents endpoint.
+ */
+export class DocumentListItemDto extends DocumentResponseDto {
+  /**
+   * Number of pages in the document (null if not yet extracted)
+   */
+  pageCount: number | null;
+
+  /**
+   * Whether text has been successfully extracted
+   */
+  textExtracted: boolean;
+
+  /**
+   * Extraction error message (null if no error)
+   */
+  extractionError: string | null;
+
+  /**
+   * Last update timestamp (ISO 8601 string)
+   */
+  updatedAt: string;
+}
