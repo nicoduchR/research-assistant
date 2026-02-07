@@ -34,3 +34,9 @@ export type {
   LiteratureReviewResult,
   AiHealthResponse,
 } from './ai';
+
+// Literature Review types (Story 3.3)
+export type {
+  LiteratureReview,
+  LiteratureReviewResponse,
+} from './literature-review';

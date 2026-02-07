@@ -3,6 +3,8 @@ import { BullModule } from '@nestjs/bullmq';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResearchDocument } from '../../entities/research-document.entity';
 import { ProcessingJob } from '../../entities/processing-job.entity';
+import { LiteratureReview } from '../../entities/literature-review.entity';
+import { AiModule } from '../ai/ai.module';
 import { PdfExtractionProcessor } from '../../jobs/pdf-extraction.processor';
 import { LiteratureProcessingProcessor } from '../../jobs/literature-processing.processor';
 
@@ -32,7 +34,8 @@ import { LiteratureProcessingProcessor } from '../../jobs/literature-processing.
         removeOnFail: 500,
       },
     }),
-    TypeOrmModule.forFeature([ResearchDocument, ProcessingJob]),
+    TypeOrmModule.forFeature([ResearchDocument, ProcessingJob, LiteratureReview]),
+    AiModule,
   ],
   providers: [PdfExtractionProcessor, LiteratureProcessingProcessor],
   exports: [BullModule], // Export queues for other modules
