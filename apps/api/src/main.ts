@@ -2,25 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { AppDataSource } from './config/typeorm-cli.config';
-import { StorageService } from './modules/storage/storage.service';
-
-async function runMigrations() {
-  try {
-    console.log('🔄 Running database migrations...');
-    await AppDataSource.initialize();
-    await AppDataSource.runMigrations();
-    console.log('✅ Migrations completed successfully');
-    await AppDataSource.destroy();
-  } catch (error) {
-    console.error('❌ Migration failed:', error);
-    // In development, we continue even if migrations fail
-    // In production, you might want to throw the error
-    if (process.env.NODE_ENV === 'production') {
-      throw error;
-    }
-  }
-}
 
 async function bootstrap() {
   // Validate critical environment variables
@@ -41,11 +22,6 @@ async function bootstrap() {
       '⚠️  FRONTEND_URL not set - defaulting to http://localhost:3000',
     );
     console.warn('   Set FRONTEND_URL for production deployments');
-  }
-
-  // Run migrations before starting the app (development only)
-  if (process.env.AUTO_RUN_MIGRATIONS === 'true') {
-    await runMigrations();
   }
 
   const app = await NestFactory.create(AppModule);

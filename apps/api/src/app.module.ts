@@ -5,6 +5,7 @@ import { BullModule } from '@nestjs/bull';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { getDatabaseConfig } from './config/database.config';
+import { getRedisConfig } from './config/redis.config';
 import { AuthModule } from './auth/auth.module';
 import { ResearchModule } from './modules/research/research.module';
 import { StorageModule } from './modules/storage/storage.module';
@@ -26,11 +27,7 @@ import { ProcessingModule } from './modules/processing/processing.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        redis: {
-          host: configService.get('REDIS_HOST') || 'localhost',
-          port: parseInt(configService.get('REDIS_PORT') || '6379', 10),
-          password: configService.get('REDIS_PASSWORD') || undefined,
-        },
+        redis: getRedisConfig(configService),
       }),
     }),
     AuthModule,

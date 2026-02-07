@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { Job } from 'bull';
 import { ResearchDocument } from '../entities/research-document.entity';
 import * as fs from 'fs/promises';
-const pdfParse = require('pdf-parse');
+import { PDFParse } from 'pdf-parse';
 
 interface PdfExtractionJobPayload {
   documentId: string;
@@ -35,75 +35,92 @@ export class PdfExtractionProcessor {
       // Step 1: Read PDF file from filesystem
       const pdfBuffer = await fs.readFile(storagePath);
 
-      // Step 2: Parse PDF using pdf-parse
-      const pdfData = await pdfParse(pdfBuffer);
+      // Step 2: Parse PDF using pdf-parse v2 API
+      const parser = new PDFParse({ data: new Uint8Array(pdfBuffer) });
+      try {
+        const textResult = await parser.getText();
 
-      // Step 3: Extract text and page count
-      const extractedText = pdfData.text;
-      const pageCount = pdfData.numpages;
+        // Step 3: Extract text and page count
+        const extractedText = textResult.text;
+        const pageCount = textResult.total;
 
-      // Step 4: Detect scanned PDFs (heuristic: very little text extracted)
-      const isScanned =
-        extractedText.trim().length < this.SCANNED_PDF_THRESHOLD;
+        // Step 4: Detect scanned PDFs (heuristic: very little text extracted)
+        const isScanned =
+          extractedText.trim().length < this.SCANNED_PDF_THRESHOLD;
 
-      if (isScanned) {
-        this.logger.warn(
-          `Scanned PDF detected for document ${documentId} (user: ${userId}) - ` +
-            `only ${extractedText.trim().length} characters extracted`,
-        );
+        if (isScanned) {
+          this.logger.warn(
+            `Scanned PDF detected for document ${documentId} (user: ${userId}) - ` +
+              `only ${extractedText.trim().length} characters extracted`,
+          );
 
+          await this.documentRepository.update(documentId, {
+            textExtracted: false,
+            extractionError:
+              'Scanned PDF detected - text extraction not possible',
+            pageCount: pageCount,
+          });
+
+          return; // Job completes successfully but marks as scanned
+        }
+
+        // Step 5: Save extracted text and metadata to database
         await this.documentRepository.update(documentId, {
-          textExtracted: false,
-          extractionError:
-            'Scanned PDF detected - text extraction not possible',
+          extractedText: extractedText,
           pageCount: pageCount,
+          textExtracted: true,
+          extractionError: null,
         });
 
-        return; // Job completes successfully but marks as scanned
+        this.logger.log(
+          `PDF extraction completed for document ${documentId}: ` +
+            `${pageCount} pages, ${extractedText.length} characters`,
+        );
+      } finally {
+        await parser.destroy();
       }
-
-      // Step 5: Save extracted text and metadata to database
-      await this.documentRepository.update(documentId, {
-        extractedText: extractedText,
-        pageCount: pageCount,
-        textExtracted: true,
-        extractionError: null,
-      });
-
-      this.logger.log(
-        `PDF extraction completed for document ${documentId}: ` +
-          `${pageCount} pages, ${extractedText.length} characters`,
-      );
     } catch (error) {
-      // Step 6: Handle extraction errors
+      // Step 6: Handle extraction errors with type narrowing
+      const err =
+        error instanceof Error
+          ? error
+          : new Error(String(error));
+      const errCode = (error as NodeJS.ErrnoException)?.code;
+
       this.logger.error(
-        `PDF extraction failed for document ${documentId} (user: ${userId}): ${error.message}`,
-        error.stack,
+        `PDF extraction failed for document ${documentId} (user: ${userId}): ${err.message}`,
+        err.stack,
       );
 
       // Determine error type for user-friendly message
       let errorMessage = 'Unknown extraction error';
 
-      if (error.code === 'ENOENT') {
+      if (errCode === 'ENOENT') {
         errorMessage = 'PDF file not found on server';
-      } else if (error.code === 'EACCES') {
+      } else if (errCode === 'EACCES') {
         errorMessage = 'Permission denied reading PDF file';
-      } else if (error.message.includes('Invalid PDF')) {
+      } else if (err.message.includes('Invalid PDF')) {
         errorMessage = 'Invalid or corrupted PDF file';
-      } else if (error.message.includes('Encrypted')) {
+      } else if (err.message.includes('Encrypted')) {
         errorMessage = 'Encrypted PDF - password required';
       } else {
-        errorMessage = `Extraction failed: ${error.message}`;
+        errorMessage = `Extraction failed: ${err.message}`;
       }
 
       // Save error to database (do NOT delete document record)
-      await this.documentRepository.update(documentId, {
-        textExtracted: false,
-        extractionError: errorMessage,
-      });
+      try {
+        await this.documentRepository.update(documentId, {
+          textExtracted: false,
+          extractionError: errorMessage,
+        });
+      } catch (dbError) {
+        this.logger.error(
+          `Failed to save extraction error to database for document ${documentId}: ${dbError instanceof Error ? dbError.message : String(dbError)}`,
+        );
+      }
 
-      // Rethrow error for BullMQ retry logic
-      throw error;
+      // Rethrow error for Bull retry logic
+      throw err;
     }
   }
 }

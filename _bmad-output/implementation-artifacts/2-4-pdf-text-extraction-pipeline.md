@@ -1,6 +1,6 @@
 # Story 2.4: PDF Text Extraction Pipeline
 
-Status: review
+Status: done
 
 ## Story
 
@@ -149,7 +149,7 @@ This is **Story 2.4** in **Epic 2: Document Upload & Management**. This story cr
 This story creates the **background job infrastructure** for PDF text extraction:
 
 1. **Database Schema**: Add extracted_text column to research_documents table
-2. **BullMQ Integration**: Configure processing module with pdf-extraction queue
+2. **Bull Queue Integration (via @nestjs/bull)**: Configure processing module with pdf-extraction queue
 3. **PDF Extraction Processor**: Background worker that extracts text using pdf-parse
 4. **Job Queueing**: Automatically queue extraction job after successful upload
 5. **Error Handling**: Graceful degradation for scanned PDFs and extraction failures
@@ -837,6 +837,15 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 ## Change Log
 
+**2026-02-07 - Code Review Fixes Applied**
+- [H1] Fixed: Wrapped error-saving DB update in try-catch to prevent silent data inconsistency in pdf-extraction.processor.ts
+- [H2] Fixed: Added type narrowing for catch clause error (instanceof Error check, NodeJS.ErrnoException for code) in pdf-extraction.processor.ts
+- [H3] Fixed: Corrected story documentation — uses @nestjs/bull (legacy Bull), not BullMQ as previously claimed
+- [M1] Fixed: Centralized Redis config — app.module.ts now uses getRedisConfig() from redis.config.ts instead of inline duplication
+- [M2] Fixed: redis.config.ts now uses parseInt for port and || undefined fallback for password, consistent with Bull requirements
+- [M3] Fixed: Added migration test file 1738528800000-AddExtractedTextColumn.spec.ts to match pattern from previous migrations
+- [M4] Fixed: Updated File List to include sprint-status.yaml and pnpm-lock.yaml
+
 **2026-01-31 - Story 2.4 Implementation Complete**
 - Added extracted_text column to research_documents table (TypeORM migration)
 - Created ProcessingModule with BullMQ pdf-extraction queue configuration
@@ -1020,9 +1029,10 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 
 **Files Created:**
 
-- `apps/api/src/modules/processing/processing.module.ts` - BullMQ queue configuration with retry logic
+- `apps/api/src/modules/processing/processing.module.ts` - Bull queue configuration with retry logic
 - `apps/api/src/jobs/pdf-extraction.processor.ts` - Background worker for PDF text extraction using pdf-parse
 - `apps/api/src/migrations/1738528800000-AddExtractedTextColumn.ts` - Database migration for extracted_text column
+- `apps/api/src/migrations/1738528800000-AddExtractedTextColumn.spec.ts` - Migration unit test (added by code review)
 
 **Files Modified:**
 
@@ -1032,9 +1042,14 @@ Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
 - `apps/api/src/modules/documents/documents.service.ts` - Injected pdf-extraction queue, added job queueing after upload
 - `packages/types/src/document.ts` - Added extractedText?: string | null field to Document interface
 - `apps/api/package.json` - Added @types/pdf-parse as dev dependency
+- `apps/api/src/config/redis.config.ts` - Fixed port parsing and password fallback (modified by code review)
+
+**Also Changed (side-effects):**
+
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` - Sprint tracking updated for story 2.4
+- `pnpm-lock.yaml` - Lock file updated for @types/pdf-parse dependency
 
 **No Changes to:**
 
 - `apps/api/src/modules/documents/documents.controller.ts` - Upload API unchanged
 - `apps/api/src/modules/storage/storage.service.ts` - Storage logic unchanged
-- `apps/api/src/config/redis.config.ts` - Redis config unchanged (used by BullModule)
