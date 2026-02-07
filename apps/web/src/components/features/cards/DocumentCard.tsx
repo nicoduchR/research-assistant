@@ -1,92 +1,66 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import type { Document } from '@repo/types';
 import { Card, CardContent } from '@/src/components/atoms/Card';
 import { Badge } from '@/src/components/atoms/Badge';
 import { Spinner } from '@/src/components/atoms/Spinner';
-import { cn, formatDate, formatFileSize } from '@/src/lib/utils';
+import { cn, formatDate, formatFileSize, formatPageCount } from '@/src/lib/utils';
 
 export interface DocumentCardProps {
   document: Document;
   onDelete?: (id: string) => void;
   onSelect?: (id: string) => void;
-  isProcessing?: boolean;
   className?: string;
 }
 
-/**
- * DocumentCard - Uploaded PDF display with metadata
- *
- * @example
- * ```tsx
- * <DocumentCard
- *   document={pdfDoc}
- *   onDelete={handleDelete}
- *   onSelect={handleSelect}
- *   isProcessing={false}
- * />
- * ```
- */
+function getExtractionStatus(doc: Document): 'processing' | 'success' | 'error' {
+  if (doc.extractionError) return 'error';
+  if (doc.textExtracted) return 'success';
+  return 'processing';
+}
+
 export const DocumentCard: React.FC<DocumentCardProps> = ({
   document,
   onDelete,
   onSelect,
-  isProcessing = false,
   className = '',
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const getStatusIcon = () => {
-    if (isProcessing) {
-      return <Spinner size="sm" />;
-    }
-    if (document.status === 'error') {
-      return <span className="material-symbols-outlined text-error">warning</span>;
-    }
-    return <span className="material-symbols-outlined text-primary">description</span>;
-  };
-
-  const getStatusBadge = () => {
-    if (isProcessing) {
-      return <Badge variant="neutral" size="sm">Processing</Badge>;
-    }
-    if (document.status === 'error') {
-      return <Badge variant="error" size="sm">Error</Badge>;
-    }
-    if (document.status === 'completed') {
-      return <Badge variant="success" size="sm">Ready</Badge>;
-    }
-    return null;
-  };
+  const status = getExtractionStatus(document);
 
   return (
     <Card
       className={cn(
         'relative group',
-        onSelect && 'cursor-pointer hover:shadow-medium hover:border-primary/30',
+        onSelect && status !== 'processing' && 'cursor-pointer hover:shadow-medium hover:border-primary/30',
         onSelect && 'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         'transition-all duration-fast',
         className
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={() => !isProcessing && onSelect?.(document.id)}
+      padding="none"
+      onClick={() => status !== 'processing' && onSelect?.(document.id)}
       role={onSelect ? 'button' : undefined}
       tabIndex={onSelect ? 0 : undefined}
-      onKeyPress={(e) => {
-        if (onSelect && (e.key === 'Enter' || e.key === ' ')) {
+      onKeyDown={(e) => {
+        if (onSelect && status !== 'processing' && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
           onSelect(document.id);
         }
       }}
-      aria-label={`Document: ${document.filename}`}
+      aria-label={`Document: ${document.fileName}`}
+      aria-disabled={onSelect && status === 'processing' ? true : undefined}
     >
       <CardContent className="p-md">
         <div className="flex gap-md">
-          {/* File Icon */}
+          {/* File Icon / Status */}
           <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-primary/10 rounded-md">
-            {getStatusIcon()}
+            {status === 'processing' ? (
+              <Spinner size="sm" />
+            ) : status === 'error' ? (
+              <span className="material-symbols-outlined text-error">warning</span>
+            ) : (
+              <span className="material-symbols-outlined text-primary">description</span>
+            )}
           </div>
 
           {/* Document Info */}
@@ -94,11 +68,21 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
             <div className="flex items-start justify-between gap-sm mb-xs">
               <h3
                 className="text-body font-medium text-text-primary truncate flex-1"
-                title={document.filename}
+                title={document.fileName}
               >
-                {document.filename}
+                {document.fileName}
               </h3>
-              {getStatusBadge()}
+              {status === 'processing' && (
+                <Badge variant="processing" size="sm">Processing</Badge>
+              )}
+              {status === 'error' && (
+                <span title={document.extractionError || undefined}>
+                  <Badge variant="error" size="sm">Error</Badge>
+                </span>
+              )}
+              {status === 'success' && (
+                <Badge variant="success" size="sm">Ready</Badge>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-md text-small text-text-secondary">
@@ -108,32 +92,28 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
                   <span>{formatDate(document.uploadedAt)}</span>
                 </div>
               )}
-
-              {document.pageCount !== undefined && (
-                <>
-                  <span className="text-border">•</span>
-                  <span>{document.pageCount} pages</span>
-                </>
-              )}
-
-              {document.fileSize !== undefined && (
-                <>
-                  <span className="text-border">•</span>
-                  <span>{formatFileSize(document.fileSize)}</span>
-                </>
-              )}
+              <span className="text-border">&bull;</span>
+              <span>{formatPageCount(document.pageCount)}</span>
+              <span className="text-border">&bull;</span>
+              <span>{formatFileSize(document.fileSize)}</span>
             </div>
+
+            {status === 'error' && document.extractionError && (
+              <p className="mt-xs text-small text-error" title={document.extractionError}>
+                {document.extractionError}
+              </p>
+            )}
           </div>
 
           {/* Delete Button (shown on hover) */}
-          {onDelete && isHovered && !isProcessing && (
+          {onDelete && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(document.id);
               }}
-              className="flex-shrink-0 p-xs text-text-secondary hover:text-error hover:bg-error/10 rounded-md transition-colors duration-fast"
-              aria-label={`Delete ${document.filename}`}
+              className="flex-shrink-0 p-xs text-text-secondary hover:text-error hover:bg-error/10 rounded-md transition-colors duration-fast opacity-0 group-hover:opacity-100"
+              aria-label={`Delete ${document.fileName}`}
             >
               <span className="material-symbols-outlined text-xl">delete</span>
             </button>

@@ -7,6 +7,7 @@ import { useDocumentStore } from '@/src/lib/store/documentStore';
 import { ScopeSetupModal } from '@/src/components/features/research/ScopeSetupModal';
 import { UploadZone } from '@/src/components/features/upload/UploadZone';
 import { DocumentList } from '@/src/components/features/upload/DocumentList';
+import { ToastContainer } from '@/src/components/molecules/Toast/ToastContainer';
 import Header from '@/src/components/Header';
 
 export default function DashboardPage() {
@@ -143,6 +144,9 @@ export default function DashboardPage() {
         {/* Document List */}
         <DocumentList />
       </main>
+
+      {/* Global Toast Notifications */}
+      <ToastContainer />
     </div>
   );
 }

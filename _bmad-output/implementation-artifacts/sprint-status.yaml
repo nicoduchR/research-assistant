@@ -48,15 +48,15 @@ development_status:
   1-5-sign-out-functionality: done
   epic-1-retrospective: optional
 
-  epic-2: in-progress
+  epic-2: done
   2-0-project-scope-and-problematique-setup: done
   2-1-reusable-ui-components-library: done
   2-2-document-data-model-and-storage-setup: done
   2-3-single-pdf-upload-endpoint: done
   2-4-pdf-text-extraction-pipeline: done
   2-5-drag-and-drop-upload-interface: done
-  2-6-document-list-view: backlog
-  2-7-remove-document-functionality: backlog
+  2-6-document-list-view: done
+  2-7-remove-document-functionality: done
   epic-2-retrospective: optional
 
   epic-3: backlog

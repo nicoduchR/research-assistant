@@ -204,6 +204,7 @@ export const useDocumentStore = create<DocumentStore>()((set, get) => ({
   },
 
   deleteDocument: async (id: string) => {
+    set({ error: null });
     try {
       await documentsApi.deleteDocument(id);
       set((state) => ({
@@ -214,6 +215,7 @@ export const useDocumentStore = create<DocumentStore>()((set, get) => ({
         error instanceof Error ? error.message : 'Failed to delete document';
       console.error('Failed to delete document:', error);
       set({ error: message });
+      throw error;
     }
   },
 }));

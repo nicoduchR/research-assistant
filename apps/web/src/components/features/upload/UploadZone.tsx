@@ -3,32 +3,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { DropZone } from '@/src/components/molecules/DropZone/DropZone';
 import { ProgressIndicator } from '@/src/components/molecules/ProgressIndicator/ProgressIndicator';
-import { Toast } from '@/src/components/molecules/Toast/Toast';
 import { useDocumentStore } from '@/src/lib/store/documentStore';
-
-interface ToastMessage {
-  id: string;
-  message: string;
-  description?: string;
-  type: 'success' | 'error' | 'info' | 'warning';
-}
+import { useToastStore } from '@/src/lib/store/toastStore';
 
 export const UploadZone: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { uploads, uploadFiles, removeUpload, retryUpload } = useDocumentStore();
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const addToast = useToastStore((state) => state.addToast);
   const [isDragOverWindow, setIsDragOverWindow] = useState(false);
-
-  const addToast = useCallback(
-    (message: string, type: ToastMessage['type'], description?: string) => {
-      const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      setToasts((prev) => [...prev, { id, message, type, description }]);
-    },
-    [],
-  );
-
-  const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
 
   // Full-page drag overlay
   useEffect(() => {
@@ -221,23 +202,6 @@ export const UploadZone: React.FC<{ className?: string }> = ({ className = '' })
                 </button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Toast Notifications */}
-      {toasts.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-50 space-y-sm max-w-sm">
-          {toasts.map((toast) => (
-            <Toast
-              key={toast.id}
-              message={toast.message}
-              description={toast.description}
-              type={toast.type}
-              onClose={() => removeToast(toast.id)}
-              autoDismiss={true}
-              duration={5000}
-            />
           ))}
         </div>
       )}

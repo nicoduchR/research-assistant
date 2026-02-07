@@ -36,3 +36,13 @@ export function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+/**
+ * Formats page count for display
+ * @param pageCount - Number of pages or null if extraction pending
+ * @returns Formatted string (e.g., "24 pages", "1 page", or "—")
+ */
+export function formatPageCount(pageCount: number | null): string {
+  if (pageCount === null) return '\u2014';
+  return `${pageCount} page${pageCount !== 1 ? 's' : ''}`;
+}

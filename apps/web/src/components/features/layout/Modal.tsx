@@ -7,7 +7,7 @@ import { Button } from '@/src/components/atoms/Button';
 export interface ModalAction {
   label: string;
   onClick: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'destructive';
   loading?: boolean;
 }
 
