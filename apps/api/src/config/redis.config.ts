@@ -4,4 +4,5 @@ export const getRedisConfig = (configService: ConfigService) => ({
   host: configService.get<string>('REDIS_HOST', 'localhost'),
   port: parseInt(configService.get('REDIS_PORT', '6379'), 10),
   password: configService.get<string>('REDIS_PASSWORD') || undefined,
+  maxRetriesPerRequest: null, // Required for BullMQ workers
 });

@@ -7,9 +7,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { InjectQueue } from '@nestjs/bull';
+import { InjectQueue } from '@nestjs/bullmq';
 import { Repository } from 'typeorm';
-import { Queue } from 'bull';
+import { Queue } from 'bullmq';
 import { ResearchDocument } from '../../entities/research-document.entity';
 import { StorageService } from '../storage/storage.service';
 import { randomUUID } from 'crypto';

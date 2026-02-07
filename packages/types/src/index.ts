@@ -18,6 +18,10 @@ export type { ResearchScope, CreateResearchScopeDto } from './research';
 // Document types (Story 2.1+)
 export type { Document, CreateDocumentDto, UpdateDocumentDto } from './document';
 
-// Future types to be implemented:
-// - LiteratureReview (Story 3.x+)
-// - ProcessingJob (Story 3.x+)
+// Processing Job types (Story 3.1)
+export type {
+  ProcessingJob,
+  CreateProcessingJobDto,
+  ProcessingJobResponse,
+} from './processing';
+export { ProcessingJobStatus } from './processing';

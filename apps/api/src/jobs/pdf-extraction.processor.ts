@@ -1,8 +1,8 @@
-import { Processor, Process } from '@nestjs/bull';
+import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Job } from 'bull';
+import { Job } from 'bullmq';
 import { ResearchDocument } from '../entities/research-document.entity';
 import * as fs from 'fs/promises';
 import { PDFParse } from 'pdf-parse';
@@ -14,17 +14,40 @@ interface PdfExtractionJobPayload {
 }
 
 @Processor('pdf-extraction')
-export class PdfExtractionProcessor {
+export class PdfExtractionProcessor extends WorkerHost {
   private readonly logger = new Logger(PdfExtractionProcessor.name);
   private readonly SCANNED_PDF_THRESHOLD = 100; // Characters
 
   constructor(
     @InjectRepository(ResearchDocument)
     private documentRepository: Repository<ResearchDocument>,
-  ) {}
+  ) {
+    super();
+  }
 
-  @Process('extract-text')
-  async handleExtraction(job: Job<PdfExtractionJobPayload>): Promise<void> {
+  async process(job: Job<PdfExtractionJobPayload>): Promise<void> {
+    switch (job.name) {
+      case 'extract-text':
+        return await this.handleExtraction(job);
+      default:
+        throw new Error(`Unknown job type: ${job.name}`);
+    }
+  }
+
+  @OnWorkerEvent('completed')
+  onCompleted(job: Job) {
+    this.logger.log(`PDF extraction job ${job.id} completed`);
+  }
+
+  @OnWorkerEvent('failed')
+  onFailed(job: Job, error: Error) {
+    this.logger.error(
+      `PDF extraction job ${job.id} failed: ${error.message}`,
+      error.stack,
+    );
+  }
+
+  private async handleExtraction(job: Job<PdfExtractionJobPayload>): Promise<void> {
     const { documentId, userId, storagePath } = job.data;
 
     this.logger.log(

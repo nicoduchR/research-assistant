@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
+import { BullModule } from '@nestjs/bullmq';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResearchDocument } from '../../entities/research-document.entity';
+import { ProcessingJob } from '../../entities/processing-job.entity';
 import { PdfExtractionProcessor } from '../../jobs/pdf-extraction.processor';
+import { LiteratureProcessingProcessor } from '../../jobs/literature-processing.processor';
 
 @Module({
   imports: [
@@ -18,9 +20,21 @@ import { PdfExtractionProcessor } from '../../jobs/pdf-extraction.processor';
         removeOnFail: 500, // Keep last 500 failed jobs for debugging
       },
     }),
-    TypeOrmModule.forFeature([ResearchDocument]),
+    BullModule.registerQueue({
+      name: 'literature-processing',
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 2000,
+        },
+        removeOnComplete: 100,
+        removeOnFail: 500,
+      },
+    }),
+    TypeOrmModule.forFeature([ResearchDocument, ProcessingJob]),
   ],
-  providers: [PdfExtractionProcessor],
-  exports: [BullModule], // Export queue for DocumentsService
+  providers: [PdfExtractionProcessor, LiteratureProcessingProcessor],
+  exports: [BullModule], // Export queues for other modules
 })
 export class ProcessingModule {}
