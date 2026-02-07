@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { LiteratureReviewResponse } from '@/src/lib/api/literature-reviews';
+import { usePdfViewerStore } from '@/src/lib/store/pdfViewerStore';
+import { useToastStore } from '@/src/lib/store/toastStore';
 
 interface DocumentInfo {
   id: string;
@@ -104,14 +106,34 @@ function parseContentWithCitations(
 
 interface CitationTooltipProps {
   index: number;
+  documentId: string;
   documentName: string;
   pageNumber: number | null;
 }
 
-function InlineCitation({ index, documentName, pageNumber }: CitationTooltipProps) {
+function InlineCitation({ index, documentId, documentName, pageNumber }: CitationTooltipProps) {
   const [showTooltip, setShowTooltip] = useState(false);
+  const openViewer = usePdfViewerStore((s) => s.openViewer);
 
   const pageLabel = pageNumber !== null ? `p. ${pageNumber}` : 'page unknown';
+
+  const handleClick = useCallback(() => {
+    if (!documentId) return;
+    if (pageNumber === null) {
+      useToastStore.getState().addToast('Page number not available — showing from beginning', 'info');
+    }
+    openViewer(documentId, documentName, pageNumber ?? 1);
+  }, [documentId, documentName, pageNumber, openViewer]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleClick();
+      }
+    },
+    [handleClick],
+  );
 
   return (
     <span className="relative inline-block">
@@ -119,6 +141,8 @@ function InlineCitation({ index, documentName, pageNumber }: CitationTooltipProp
         className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 mx-0.5 text-xs font-bold text-primary bg-primary/10 border border-primary/30 rounded cursor-pointer hover:bg-primary/20 transition-colors"
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
         role="button"
         tabIndex={0}
         aria-label={`Citation ${index}: ${documentName}, ${pageLabel}`}
@@ -160,6 +184,7 @@ export function LiteratureReviewContent({ review, documents }: LiteratureReviewC
             <InlineCitation
               key={i}
               index={segment.citationIndex ?? 0}
+              documentId={segment.documentId ?? ''}
               documentName={docName}
               pageNumber={segment.pageNumber ?? null}
             />

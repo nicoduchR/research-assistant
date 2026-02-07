@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 
 const PdfPanel = dynamic(
-  () => import('./PdfPanel').then((mod) => mod.PdfPanel),
+  () => import('./PdfPanel').then((mod) => ({ default: mod.PdfPanel })),
   { ssr: false },
 );
 

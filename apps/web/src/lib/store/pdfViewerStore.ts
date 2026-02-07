@@ -9,6 +9,8 @@ interface PdfViewerState {
   isLoading: boolean;
   error: string | null;
   targetPage: number | null;
+  zoom: number;
+  retryCount: number;
 }
 
 interface PdfViewerActions {
@@ -18,6 +20,9 @@ interface PdfViewerActions {
   setTotalPages: (totalPages: number) => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
+  setZoom: (zoom: number) => void;
+  clearTargetPage: () => void;
+  retryLoad: () => void;
   reset: () => void;
 }
 
@@ -32,12 +37,28 @@ const initialState: PdfViewerState = {
   isLoading: false,
   error: null,
   targetPage: null,
+  zoom: 100,
+  retryCount: 0,
 };
 
 export const usePdfViewerStore = create<PdfViewerStore>()((set) => ({
   ...initialState,
 
   openViewer: (documentId: string, documentName: string, page?: number) => {
+    const state = usePdfViewerStore.getState();
+    if (state.isOpen && state.documentId === documentId) {
+      // Same document — just switch page, no reload needed
+      if (state.totalPages !== null) {
+        set({
+          currentPage: Math.min(page ?? 1, state.totalPages),
+          targetPage: null,
+        });
+      } else {
+        // Still loading — queue page for onLoadSuccess
+        set({ targetPage: page ?? 1 });
+      }
+      return;
+    }
     set({
       isOpen: true,
       documentId,
@@ -47,6 +68,8 @@ export const usePdfViewerStore = create<PdfViewerStore>()((set) => ({
       totalPages: null,
       isLoading: true,
       error: null,
+      zoom: 100,
+      retryCount: 0,
     });
   },
 
@@ -60,11 +83,15 @@ export const usePdfViewerStore = create<PdfViewerStore>()((set) => ({
       isLoading: false,
       error: null,
       targetPage: null,
+      zoom: 100,
+      retryCount: 0,
     });
   },
 
   setPage: (page: number) => {
-    set({ currentPage: page });
+    const { totalPages } = usePdfViewerStore.getState();
+    const clamped = Math.max(1, totalPages !== null ? Math.min(page, totalPages) : page);
+    set({ currentPage: clamped });
   },
 
   setTotalPages: (totalPages: number) => {
@@ -77,6 +104,23 @@ export const usePdfViewerStore = create<PdfViewerStore>()((set) => ({
 
   setError: (error: string | null) => {
     set({ error, isLoading: false });
+  },
+
+  setZoom: (zoom: number) => {
+    const clamped = Math.max(50, Math.min(200, zoom));
+    set({ zoom: clamped });
+  },
+
+  clearTargetPage: () => {
+    set({ targetPage: null });
+  },
+
+  retryLoad: () => {
+    set((state) => ({
+      error: null,
+      isLoading: true,
+      retryCount: state.retryCount + 1,
+    }));
   },
 
   reset: () => {

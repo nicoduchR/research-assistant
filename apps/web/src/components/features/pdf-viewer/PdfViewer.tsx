@@ -7,19 +7,19 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import { getDocumentFileUrl } from '@/src/lib/api/documents';
 import { usePdfViewerStore } from '@/src/lib/store/pdfViewerStore';
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export function PdfViewer() {
   const documentId = usePdfViewerStore((s) => s.documentId);
-  const documentName = usePdfViewerStore((s) => s.documentName);
   const currentPage = usePdfViewerStore((s) => s.currentPage);
-  const totalPages = usePdfViewerStore((s) => s.totalPages);
   const setTotalPages = usePdfViewerStore((s) => s.setTotalPages);
+  const setPage = usePdfViewerStore((s) => s.setPage);
+  const clearTargetPage = usePdfViewerStore((s) => s.clearTargetPage);
+  const zoom = usePdfViewerStore((s) => s.zoom);
+  const storeError = usePdfViewerStore((s) => s.error);
   const setError = usePdfViewerStore((s) => s.setError);
-  const openViewer = usePdfViewerStore((s) => s.openViewer);
+  const retryCount = usePdfViewerStore((s) => s.retryCount);
+  const retryLoad = usePdfViewerStore((s) => s.retryLoad);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -50,9 +50,7 @@ export function PdfViewer() {
   );
 
   const handleRetry = () => {
-    if (documentId && documentName) {
-      openViewer(documentId, documentName, currentPage);
-    }
+    retryLoad();
   };
 
   if (!fileSource) {
@@ -62,11 +60,24 @@ export function PdfViewer() {
   return (
     <div ref={containerRef} className="flex flex-col items-center w-full">
       <Document
+        key={`${documentId}-${retryCount}`}
         file={fileSource}
-        onLoadSuccess={({ numPages }) => setTotalPages(numPages)}
+        onLoadSuccess={({ numPages }) => {
+          setTotalPages(numPages);
+          const tp = usePdfViewerStore.getState().targetPage;
+          if (tp !== null) {
+            setPage(Math.min(tp, numPages));
+            clearTargetPage();
+          }
+        }}
         onLoadError={(error) => {
-          console.error('PDF Load Error for document:', documentId, error);
-          setError('Unable to load PDF. Please try again.');
+          const status = 'status' in error ? (error as { status: number }).status : undefined;
+          const isNotFound = status === 404 || error.message?.toLowerCase().includes('404');
+          if (isNotFound) {
+            setError('Source document not found');
+          } else {
+            setError('Unable to load PDF. Please try again.');
+          }
         }}
         loading={
           <div className="flex items-center justify-center py-20">
@@ -79,7 +90,7 @@ export function PdfViewer() {
               error
             </span>
             <p className="text-slate-600 dark:text-slate-400 mb-4">
-              Unable to load PDF. Please try again.
+              {storeError || 'Unable to load PDF. Please try again.'}
             </p>
             <button
               onClick={handleRetry}
@@ -92,15 +103,9 @@ export function PdfViewer() {
         }
       >
         {containerWidth > 0 && (
-          <Page pageNumber={currentPage} width={containerWidth} />
+          <Page pageNumber={currentPage} width={containerWidth * (zoom / 100)} />
         )}
       </Document>
-
-      {totalPages !== null && (
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-          Page {currentPage} of {totalPages}
-        </p>
-      )}
     </div>
   );
 }
