@@ -9,6 +9,7 @@ import { LiteratureReviewContent } from '@/src/components/features/literature-re
 import { LiteratureReviewEditor } from '@/src/components/features/literature-review/LiteratureReviewEditor';
 import { ToastContainer } from '@/src/components/molecules/Toast/ToastContainer';
 import Header from '@/src/components/Header';
+import { MethodologyProgressTracker } from '@/src/components/features/literature-review/MethodologyProgressTracker';
 
 export default function LiteratureReviewPage() {
   const params = useParams();
@@ -41,7 +42,7 @@ export default function LiteratureReviewPage() {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
         <Header />
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
@@ -72,44 +73,56 @@ export default function LiteratureReviewPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <Header />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back to Dashboard link */}
-        <button
-          onClick={() => router.push('/dashboard')}
-          className="inline-flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary mb-6 transition-colors"
-        >
-          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-          Back to Dashboard
-        </button>
-
-        {/* Review header */}
-        <div className="flex items-start justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
-              {review.title}
-            </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              {formattedDate}
-            </p>
-          </div>
-          {!isEditing && (
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col lg:flex-row lg:gap-6">
+          {/* Primary column: review content */}
+          <div className="flex-1 max-w-4xl">
+            {/* Back to Dashboard link */}
             <button
-              onClick={startEditing}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors"
+              onClick={() => router.push('/dashboard')}
+              className="inline-flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary mb-6 transition-colors"
             >
-              <span className="material-symbols-outlined text-[18px]">edit</span>
-              Edit
+              <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+              Back to Dashboard
             </button>
-          )}
-        </div>
 
-        {/* Content or Editor */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8">
-          {isEditing ? (
-            <LiteratureReviewEditor reviewId={reviewId} />
-          ) : (
-            <LiteratureReviewContent review={review} documents={documentInfos} />
-          )}
+            {/* Review header */}
+            <div className="flex items-start justify-between mb-8">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+                  {review.title}
+                </h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  {formattedDate}
+                </p>
+              </div>
+              {!isEditing && (
+                <button
+                  onClick={startEditing}
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">edit</span>
+                  Edit
+                </button>
+              )}
+            </div>
+
+            {/* Content or Editor */}
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8">
+              {isEditing ? (
+                <LiteratureReviewEditor reviewId={reviewId} />
+              ) : (
+                <LiteratureReviewContent review={review} documents={documentInfos} />
+              )}
+            </div>
+          </div>
+
+          {/* Secondary column: methodology tracker */}
+          <aside className="w-full lg:w-80 lg:flex-shrink-0 mt-6 lg:mt-0" aria-label="Methodology progress">
+            <div className="lg:sticky lg:top-8">
+              <MethodologyProgressTracker />
+            </div>
+          </aside>
         </div>
       </main>
 
