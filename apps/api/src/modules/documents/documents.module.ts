@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResearchDocument } from '../../entities/research-document.entity';
+import { DocumentAnalysis } from '../../entities/document-analysis.entity';
 import { DocumentsController } from './documents.controller';
 import { DocumentsService } from './documents.service';
 import { StorageModule } from '../storage/storage.module';
@@ -8,7 +9,7 @@ import { ProcessingModule } from '../processing/processing.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ResearchDocument]),
+    TypeOrmModule.forFeature([ResearchDocument, DocumentAnalysis]),
     StorageModule, // For filesystem operations
     ProcessingModule, // For PDF extraction queue
   ],

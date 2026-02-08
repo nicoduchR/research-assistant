@@ -12,6 +12,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Repository } from 'typeorm';
 import { Queue } from 'bullmq';
 import { ResearchDocument } from '../../entities/research-document.entity';
+import { DocumentAnalysis } from '../../entities/document-analysis.entity';
 import { StorageService } from '../storage/storage.service';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs/promises';
@@ -25,6 +26,8 @@ export class DocumentsService {
   constructor(
     @InjectRepository(ResearchDocument)
     private documentRepository: Repository<ResearchDocument>,
+    @InjectRepository(DocumentAnalysis)
+    private documentAnalysisRepository: Repository<DocumentAnalysis>,
     private storageService: StorageService,
     @InjectQueue('pdf-extraction')
     private pdfExtractionQueue: Queue,
@@ -190,6 +193,7 @@ export class DocumentsService {
         'pageCount',
         'textExtracted',
         'extractionError',
+        'analysisStatus',
         'bibliographicMetadata',
         'uploadedAt',
         'updatedAt',
@@ -220,6 +224,35 @@ export class DocumentsService {
     // Delete database record
     await this.documentRepository.remove(document);
     this.logger.log(`Deleted document record: documentId=${documentId}`);
+  }
+
+  async getDocumentAnalysis(
+    documentId: string,
+    userId: string,
+  ): Promise<DocumentAnalysis> {
+    const document = await this.documentRepository.findOne({
+      where: { id: documentId },
+    });
+
+    if (!document) {
+      throw new NotFoundException('Document not found');
+    }
+
+    if (document.userId !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to view this document',
+      );
+    }
+
+    const analysis = await this.documentAnalysisRepository.findOne({
+      where: { documentId },
+    });
+
+    if (!analysis) {
+      throw new NotFoundException('Analysis not found for this document');
+    }
+
+    return analysis;
   }
 
   async getDocumentForServing(

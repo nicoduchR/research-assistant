@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 // Protected routes that require authentication
-const protectedRoutes = ['/dashboard', '/profile', '/settings'];
+const protectedRoutes = ['/dashboard', '/profile', '/settings', '/document'];
 
 // Public routes that don't require authentication
 const publicRoutes = ['/', '/login'];

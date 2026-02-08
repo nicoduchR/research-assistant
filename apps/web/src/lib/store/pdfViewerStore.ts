@@ -11,6 +11,7 @@ interface PdfViewerState {
   targetPage: number | null;
   zoom: number;
   retryCount: number;
+  highlightText: string | null;
 }
 
 interface PdfViewerActions {
@@ -23,6 +24,7 @@ interface PdfViewerActions {
   setZoom: (zoom: number) => void;
   clearTargetPage: () => void;
   retryLoad: () => void;
+  setHighlightText: (text: string | null) => void;
   reset: () => void;
 }
 
@@ -39,6 +41,7 @@ const initialState: PdfViewerState = {
   targetPage: null,
   zoom: 100,
   retryCount: 0,
+  highlightText: null,
 };
 
 export const usePdfViewerStore = create<PdfViewerStore>()((set) => ({
@@ -121,6 +124,10 @@ export const usePdfViewerStore = create<PdfViewerStore>()((set) => ({
       isLoading: true,
       retryCount: state.retryCount + 1,
     }));
+  },
+
+  setHighlightText: (text: string | null) => {
+    set({ highlightText: text });
   },
 
   reset: () => {

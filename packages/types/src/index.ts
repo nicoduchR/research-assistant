@@ -64,5 +64,17 @@ export type {
   ProgressEvent,
   CompleteEvent,
   ErrorEvent,
+  AnalysisProgressEvent,
+  AnalysisCompleteEvent,
+  AnalysisErrorEvent,
 } from './websocket';
 export { WS_EVENTS } from './websocket';
+
+// Document Analysis types
+export type {
+  KeyCitation,
+  RelevanceAssessment,
+  MethodologyAnalysis,
+  DocumentAnalysis,
+  DocumentAnalysisResult,
+} from './document-analysis';

@@ -8,7 +8,14 @@ import {
 import { Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
-import type { ProgressEvent, CompleteEvent, ErrorEvent } from '@repo/types';
+import type {
+  ProgressEvent,
+  CompleteEvent,
+  ErrorEvent,
+  AnalysisProgressEvent,
+  AnalysisCompleteEvent,
+  AnalysisErrorEvent,
+} from '@repo/types';
 
 @WebSocketGateway({
   cors: {
@@ -107,6 +114,36 @@ export class ProcessingGateway
     payload: Omit<ErrorEvent, 'timestamp'>,
   ): void {
     this.server.to(`user:${userId}`).emit('processing:error', {
+      ...payload,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  emitAnalysisProgress(
+    userId: string,
+    payload: Omit<AnalysisProgressEvent, 'timestamp'>,
+  ): void {
+    this.server.to(`user:${userId}`).emit('analysis:progress', {
+      ...payload,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  emitAnalysisComplete(
+    userId: string,
+    payload: Omit<AnalysisCompleteEvent, 'timestamp'>,
+  ): void {
+    this.server.to(`user:${userId}`).emit('analysis:complete', {
+      ...payload,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  emitAnalysisError(
+    userId: string,
+    payload: Omit<AnalysisErrorEvent, 'timestamp'>,
+  ): void {
+    this.server.to(`user:${userId}`).emit('analysis:error', {
       ...payload,
       timestamp: new Date().toISOString(),
     });

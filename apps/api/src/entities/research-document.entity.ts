@@ -67,6 +67,9 @@ export class ResearchDocument {
     type?: string;
   } | null;
 
+  @Column({ name: 'analysis_status', type: 'varchar', nullable: true })
+  analysisStatus: 'pending' | 'analyzing' | 'completed' | 'failed' | null;
+
   @CreateDateColumn({ name: 'uploaded_at' })
   uploadedAt: Date;
 

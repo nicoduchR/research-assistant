@@ -8,6 +8,7 @@ import type {
   CitationResult,
   LiteratureReviewResult,
   AiHealthResponse,
+  DocumentAnalysisResult,
 } from '@repo/types';
 
 const SYSTEM_PROMPT = `You are an academic research assistant specializing in literature review synthesis.
@@ -26,6 +27,43 @@ After the review, output a JSON block:
   {"text": "claim text", "sourceDocumentId": "doc-uuid", "pageNumber": 12}
 ]
 \`\`\``;
+
+const DOCUMENT_ANALYSIS_PROMPT = `You are an academic research assistant. Analyze the provided research document and return a structured JSON analysis.
+
+You will receive:
+1. The document text
+2. The research scope (title, problematique, and optionally objectives)
+
+Return ONLY a valid JSON object with this exact structure (no markdown, no code blocks, just raw JSON):
+{
+  "summary": "A comprehensive summary of the document (200-400 words in the document's language)",
+  "keyCitations": [
+    {
+      "text": "Exact quote from the document",
+      "pageNumber": 5,
+      "relevance": "high",
+      "context": "Why this citation is important for the research"
+    }
+  ],
+  "relevance": {
+    "score": 7,
+    "explanation": "Explanation of how relevant this document is to the research scope",
+    "alignedObjectives": ["objective 1 that this document addresses"],
+    "recommendation": "keep"
+  },
+  "methodology": {
+    "type": "qualitative",
+    "description": "Description of the methodology used",
+    "strengths": ["strength 1"],
+    "limitations": ["limitation 1"]
+  }
+}
+
+Guidelines:
+- summary: Write in the same language as the document. Be comprehensive but concise (200-400 words).
+- keyCitations: Extract 3-8 key citations. pageNumber should be the approximate page number (or null if unknown). relevance must be "high", "medium", or "low".
+- relevance.score: 1-10 where 10 is perfectly aligned with the research scope. recommendation: "keep" (score >= 7), "maybe" (4-6), "skip" (< 4).
+- methodology.type: e.g. "qualitative", "quantitative", "mixed methods", "systematic review", "meta-analysis", "theoretical", "case study", etc.`;
 
 @Injectable()
 export class AiService implements OnModuleInit {
@@ -112,6 +150,62 @@ export class AiService implements OnModuleInit {
     }
   }
 
+  async analyzeDocument(
+    document: DocumentMetadata,
+    extractedText: string,
+    researchScope: { title: string; problematique: string; objectives?: string | null },
+  ): Promise<DocumentAnalysisResult> {
+    const model = this.configService.get<string>(
+      'ANTHROPIC_MODEL',
+      'claude-sonnet-4-5-20250929',
+    );
+
+    const scopeSection = [
+      `Research Title: ${researchScope.title}`,
+      `Problematique: ${researchScope.problematique}`,
+      researchScope.objectives ? `Objectives: ${researchScope.objectives}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    // Truncate text to avoid exceeding token limits (roughly ~100k chars ≈ 25k tokens)
+    const maxTextLength = 100000;
+    const truncatedText =
+      extractedText.length > maxTextLength
+        ? extractedText.substring(0, maxTextLength) + '\n\n[Text truncated due to length]'
+        : extractedText;
+
+    const userPrompt = `Analyze the following research document in the context of this research scope:
+
+--- RESEARCH SCOPE ---
+${scopeSection}
+
+--- DOCUMENT: ${document.fileName} (Pages: ${document.pageCount ?? 'unknown'}) ---
+${truncatedText}`;
+
+    try {
+      const message = await this.client.messages.create({
+        model,
+        max_tokens: 4096,
+        system: DOCUMENT_ANALYSIS_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+      });
+
+      const responseText =
+        message.content[0].type === 'text' ? message.content[0].text : '';
+
+      this.logger.log(
+        `Document analysis generated for ${document.id}: ${message.usage.input_tokens} input tokens, ${message.usage.output_tokens} output tokens`,
+      );
+
+      return this.parseAnalysisResponse(responseText);
+    } catch (error) {
+      this.handleApiError(error, 'analyze-document', {
+        documentId: document.id,
+      });
+    }
+  }
+
   private parseResponse(responseText: string): LiteratureReviewResult {
     // Extract citations JSON block — tolerant regex handles:
     // ```json:citations, ```json, or ```citations variants
@@ -141,6 +235,63 @@ export class AiService implements OnModuleInit {
     const title = titleMatch ? titleMatch[1].trim() : 'Literature Review';
 
     return { title, content, citations };
+  }
+
+  private parseAnalysisResponse(responseText: string): DocumentAnalysisResult {
+    // Strip any markdown code block wrapping if present
+    let jsonText = responseText.trim();
+    const codeBlockMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
+    if (codeBlockMatch) {
+      jsonText = codeBlockMatch[1].trim();
+    }
+
+    try {
+      const parsed = JSON.parse(jsonText);
+
+      // Validate and provide defaults for required fields
+      return {
+        summary: parsed.summary || 'No summary generated',
+        keyCitations: Array.isArray(parsed.keyCitations)
+          ? parsed.keyCitations.map((c: Record<string, unknown>) => ({
+              text: String(c.text || ''),
+              pageNumber: typeof c.pageNumber === 'number' ? c.pageNumber : null,
+              relevance: ['high', 'medium', 'low'].includes(c.relevance as string)
+                ? (c.relevance as 'high' | 'medium' | 'low')
+                : 'medium',
+              context: String(c.context || ''),
+            }))
+          : [],
+        relevance: {
+          score: Math.min(10, Math.max(1, Number(parsed.relevance?.score) || 5)),
+          explanation: String(parsed.relevance?.explanation || ''),
+          alignedObjectives: Array.isArray(parsed.relevance?.alignedObjectives)
+            ? parsed.relevance.alignedObjectives.map(String)
+            : [],
+          recommendation: ['keep', 'maybe', 'skip'].includes(
+            parsed.relevance?.recommendation,
+          )
+            ? parsed.relevance.recommendation
+            : 'maybe',
+        },
+        methodology: {
+          type: String(parsed.methodology?.type || 'unknown'),
+          description: String(parsed.methodology?.description || ''),
+          strengths: Array.isArray(parsed.methodology?.strengths)
+            ? parsed.methodology.strengths.map(String)
+            : [],
+          limitations: Array.isArray(parsed.methodology?.limitations)
+            ? parsed.methodology.limitations.map(String)
+            : [],
+        },
+      };
+    } catch (e) {
+      this.logger.error(
+        `Failed to parse document analysis response: ${e instanceof Error ? e.message : String(e)}`,
+      );
+      throw new UnrecoverableError(
+        'Failed to parse AI analysis response. The response was not valid JSON.',
+      );
+    }
   }
 
   private handleApiError(

@@ -85,10 +85,23 @@ export class DocumentsController {
       pageCount: doc.pageCount,
       textExtracted: doc.textExtracted,
       extractionError: doc.extractionError,
+      analysisStatus: doc.analysisStatus ?? null,
       bibliographicMetadata: doc.bibliographicMetadata ?? null,
       uploadedAt: doc.uploadedAt.toISOString(),
       updatedAt: doc.updatedAt.toISOString(),
     }));
+  }
+
+  @Get(':id/analysis')
+  async getDocumentAnalysis(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    if (!req.user || !req.user.userId) {
+      throw new BadRequestException('Invalid authentication token');
+    }
+
+    return this.documentsService.getDocumentAnalysis(id, req.user.userId);
   }
 
   @Delete(':id')

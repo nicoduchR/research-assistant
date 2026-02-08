@@ -14,10 +14,30 @@ export interface DocumentCardProps {
   className?: string;
 }
 
-function getExtractionStatus(doc: Document): 'processing' | 'success' | 'error' {
+type DocStatus = 'processing' | 'error' | 'analyzing' | 'analyzed' | 'ready';
+
+function getDocumentStatus(doc: Document): DocStatus {
   if (doc.extractionError) return 'error';
-  if (doc.textExtracted) return 'success';
-  return 'processing';
+  if (!doc.textExtracted) return 'processing';
+  if (doc.analysisStatus === 'pending' || doc.analysisStatus === 'analyzing') return 'analyzing';
+  if (doc.analysisStatus === 'completed') return 'analyzed';
+  if (doc.analysisStatus === 'failed') return 'ready'; // Analysis failed but doc is still usable
+  return 'ready';
+}
+
+function getStatusBadge(status: DocStatus) {
+  switch (status) {
+    case 'processing':
+      return <Badge variant="processing" size="sm">Processing</Badge>;
+    case 'error':
+      return <Badge variant="error" size="sm">Error</Badge>;
+    case 'analyzing':
+      return <Badge variant="processing" size="sm">Analyse...</Badge>;
+    case 'analyzed':
+      return <Badge variant="success" size="sm">Analyse</Badge>;
+    case 'ready':
+      return <Badge variant="success" size="sm">Ready</Badge>;
+  }
 }
 
 export const DocumentCard: React.FC<DocumentCardProps> = ({
@@ -26,25 +46,26 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
   onSelect,
   className = '',
 }) => {
-  const status = getExtractionStatus(document);
+  const status = getDocumentStatus(document);
+  const isClickable = onSelect && status !== 'processing';
 
   return (
     <Card
       className={cn(
         'relative group',
-        onSelect && status !== 'processing' && 'cursor-pointer hover:shadow-medium hover:border-primary/30',
-        onSelect && 'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+        isClickable && 'cursor-pointer hover:shadow-medium hover:border-primary/30',
+        isClickable && 'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         'transition-all duration-fast',
         className
       )}
       padding="none"
-      onClick={() => status !== 'processing' && onSelect?.(document.id)}
-      role={onSelect ? 'button' : undefined}
-      tabIndex={onSelect ? 0 : undefined}
+      onClick={() => isClickable && onSelect?.(document.id)}
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
       onKeyDown={(e) => {
-        if (onSelect && status !== 'processing' && (e.key === 'Enter' || e.key === ' ')) {
+        if (isClickable && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
-          onSelect(document.id);
+          onSelect!(document.id);
         }
       }}
       aria-label={`Document: ${document.fileName}`}
@@ -54,10 +75,12 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
         <div className="flex gap-md">
           {/* File Icon / Status */}
           <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-primary/10 rounded-md">
-            {status === 'processing' ? (
+            {(status === 'processing' || status === 'analyzing') ? (
               <Spinner size="sm" />
             ) : status === 'error' ? (
               <span className="material-symbols-outlined text-error">warning</span>
+            ) : status === 'analyzed' ? (
+              <span className="material-symbols-outlined text-primary">analytics</span>
             ) : (
               <span className="material-symbols-outlined text-primary">description</span>
             )}
@@ -72,17 +95,7 @@ export const DocumentCard: React.FC<DocumentCardProps> = ({
               >
                 {document.fileName}
               </h3>
-              {status === 'processing' && (
-                <Badge variant="processing" size="sm">Processing</Badge>
-              )}
-              {status === 'error' && (
-                <span title={document.extractionError || undefined}>
-                  <Badge variant="error" size="sm">Error</Badge>
-                </span>
-              )}
-              {status === 'success' && (
-                <Badge variant="success" size="sm">Ready</Badge>
-              )}
+              {getStatusBadge(status)}
             </div>
 
             <div className="flex flex-wrap items-center gap-md text-small text-text-secondary">

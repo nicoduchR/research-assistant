@@ -1,8 +1,9 @@
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { InjectQueue } from '@nestjs/bullmq';
 import { Repository } from 'typeorm';
-import { Job } from 'bullmq';
+import { Job, Queue } from 'bullmq';
 import { ResearchDocument } from '../entities/research-document.entity';
 import { BibliographyMetadataService } from '../modules/documents/bibliography-metadata.service';
 import * as fs from 'fs/promises';
@@ -23,6 +24,8 @@ export class PdfExtractionProcessor extends WorkerHost {
     @InjectRepository(ResearchDocument)
     private documentRepository: Repository<ResearchDocument>,
     private readonly bibliographyMetadataService: BibliographyMetadataService,
+    @InjectQueue('document-analysis')
+    private documentAnalysisQueue: Queue,
   ) {
     super();
   }
@@ -124,6 +127,25 @@ export class PdfExtractionProcessor extends WorkerHost {
         } catch (metadataError) {
           this.logger.warn(
             `Bibliographic metadata extraction failed for document ${documentId}: ${metadataError instanceof Error ? metadataError.message : String(metadataError)}`,
+          );
+          // Non-fatal — PDF extraction itself succeeded
+        }
+
+        // Step 7: Queue document analysis job
+        try {
+          await this.documentRepository.update(documentId, {
+            analysisStatus: 'pending',
+          });
+          await this.documentAnalysisQueue.add('analyze-document', {
+            documentId,
+            userId,
+          });
+          this.logger.log(
+            `Queued document analysis for document ${documentId}`,
+          );
+        } catch (analysisQueueError) {
+          this.logger.warn(
+            `Failed to queue document analysis for document ${documentId}: ${analysisQueueError instanceof Error ? analysisQueueError.message : String(analysisQueueError)}`,
           );
           // Non-fatal — PDF extraction itself succeeded
         }

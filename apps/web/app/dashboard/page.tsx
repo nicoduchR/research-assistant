@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/src/lib/store/authStore';
 import { useResearchStore } from '@/src/lib/store/researchStore';
 import { useDocumentStore } from '@/src/lib/store/documentStore';
+import { useToastStore } from '@/src/lib/store/toastStore';
 import { ScopeSetupModal } from '@/src/components/features/research/ScopeSetupModal';
 import { UploadZone } from '@/src/components/features/upload/UploadZone';
 import { DocumentList } from '@/src/components/features/upload/DocumentList';
@@ -11,17 +12,46 @@ import { GenerateReviewButton } from '@/src/components/features/processing/Gener
 import { ProcessingProgressModal } from '@/src/components/features/processing/ProcessingProgressModal';
 import { ToastContainer } from '@/src/components/molecules/Toast/ToastContainer';
 import Header from '@/src/components/Header';
+import { WS_EVENTS } from '@repo/types';
+import type { AnalysisCompleteEvent, AnalysisErrorEvent } from '@repo/types';
+import { connectSocket } from '@/src/lib/websocket-client';
 
 export default function DashboardPage() {
   const { user, isLoading, isAuthenticated, initializeAuth } = useAuthStore();
   const { scope, hasCompletedSetup, fetchScope, isLoading: isScopeLoading } = useResearchStore();
-  const { documents } = useDocumentStore();
+  const { documents, fetchDocuments } = useDocumentStore();
+  const addToast = useToastStore((state) => state.addToast);
   const [showScopeModal, setShowScopeModal] = useState(false);
 
   useEffect(() => {
     // Initialize auth state on mount
     initializeAuth();
   }, [initializeAuth]);
+
+  // Listen for analysis WebSocket events to auto-refresh document list
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const socket = connectSocket();
+
+    const handleAnalysisComplete = (payload: AnalysisCompleteEvent) => {
+      fetchDocuments();
+      addToast('Analyse du document terminee', 'success');
+    };
+
+    const handleAnalysisError = (payload: AnalysisErrorEvent) => {
+      fetchDocuments();
+      addToast('L\'analyse du document a echoue', 'error');
+    };
+
+    socket.on(WS_EVENTS.ANALYSIS_COMPLETE, handleAnalysisComplete);
+    socket.on(WS_EVENTS.ANALYSIS_ERROR, handleAnalysisError);
+
+    return () => {
+      socket.off(WS_EVENTS.ANALYSIS_COMPLETE, handleAnalysisComplete);
+      socket.off(WS_EVENTS.ANALYSIS_ERROR, handleAnalysisError);
+    };
+  }, [isAuthenticated, fetchDocuments, addToast]);
 
   useEffect(() => {
     // Once authenticated, check if user has completed research scope setup

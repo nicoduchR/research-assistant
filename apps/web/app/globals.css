@@ -134,4 +134,15 @@
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
   }
+
+  /* PDF Citation Highlight */
+  .citation-highlight {
+    background-color: rgba(250, 204, 21, 0.4) !important;
+    border-radius: 2px;
+    transition: background-color 0.3s ease;
+  }
+
+  .dark .citation-highlight {
+    background-color: rgba(250, 204, 21, 0.3) !important;
+  }
 }

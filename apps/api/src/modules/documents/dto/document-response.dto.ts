@@ -57,6 +57,11 @@ export class DocumentListItemDto extends DocumentResponseDto {
   extractionError: string | null;
 
   /**
+   * AI analysis status (null if not yet triggered)
+   */
+  analysisStatus: 'pending' | 'analyzing' | 'completed' | 'failed' | null;
+
+  /**
    * Last update timestamp (ISO 8601 string)
    */
   updatedAt: string;

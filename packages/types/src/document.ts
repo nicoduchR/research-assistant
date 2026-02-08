@@ -29,6 +29,7 @@ export interface Document {
   extractionError: string | null;
   extractedText: string | null;
   bibliographicMetadata?: BibliographicMetadata | null;
+  analysisStatus?: 'pending' | 'analyzing' | 'completed' | 'failed' | null;
   uploadedAt: Date | string;
   updatedAt: Date | string;
 }

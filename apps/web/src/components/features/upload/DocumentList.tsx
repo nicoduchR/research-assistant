@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Document } from '@repo/types';
 import { useDocumentStore } from '@/src/lib/store/documentStore';
 import { useToastStore } from '@/src/lib/store/toastStore';
@@ -11,6 +12,7 @@ import { Spinner } from '@/src/components/atoms/Spinner';
 import { cn } from '@/src/lib/utils';
 
 export const DocumentList: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const router = useRouter();
   const { documents, isLoading, fetchDocuments, deleteDocument } = useDocumentStore();
   const addToast = useToastStore((state) => state.addToast);
   const [pendingDeleteDoc, setPendingDeleteDoc] = useState<Document | null>(null);
@@ -19,6 +21,13 @@ export const DocumentList: React.FC<{ className?: string }> = ({ className = '' 
   useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
+
+  const handleSelectDocument = useCallback(
+    (id: string) => {
+      router.push(`/document/${id}`);
+    },
+    [router],
+  );
 
   const handleDeleteClick = useCallback(
     (id: string) => {
@@ -80,6 +89,7 @@ export const DocumentList: React.FC<{ className?: string }> = ({ className = '' 
           key={doc.id}
           document={doc}
           onDelete={handleDeleteClick}
+          onSelect={handleSelectDocument}
         />
       ))}
 
