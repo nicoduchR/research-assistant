@@ -1,0 +1,18 @@
+{
+  "projectName": "Research Assistant",
+  "clientName": "DC Solutions",
+  "branding": {
+    "primaryColor": "003B49",
+    "secondaryColor": "80A4AC",
+    "accentColor": "E6F0F2",
+    "darkColor": "1A1A1A",
+    "textColor": "000000",
+    "lightBgColor": "F8F9FA",
+    "fontFamily": "Inter"
+  },
+  "companyInfo": {
+    "name": "DC Solutions",
+    "email": "nicolas@dcsolutions.fr",
+    "phone": "07 88 49 79 44"
+  }
+}

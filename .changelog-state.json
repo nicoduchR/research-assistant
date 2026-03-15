@@ -1,0 +1,13 @@
+{
+  "lastCommitHash": "921d2c65521a34ca3f65e85220eb30f19cb5f8d8",
+  "lastReportDate": "2026-02-07",
+  "history": [
+    {
+      "date": "2026-02-07",
+      "commitRange": "2bad745...921d2c6",
+      "totalCommits": 30,
+      "type": "full",
+      "outputDir": "reports/report-2026-02-07"
+    }
+  ]
+}
