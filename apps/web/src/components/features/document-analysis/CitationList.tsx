@@ -8,6 +8,8 @@ import { cn } from '@/src/lib/utils';
 interface CitationListProps {
   citations: KeyCitation[];
   onCitationClick?: (pageNumber: number, text: string) => void;
+  onDiscardCitation?: (citationIndex: number) => void;
+  discardingCitationIndex?: number | null;
   className?: string;
 }
 
@@ -22,6 +24,8 @@ function getRelevanceVariant(relevance: string): 'success' | 'warning' | 'neutra
 export const CitationList: React.FC<CitationListProps> = ({
   citations,
   onCitationClick,
+  onDiscardCitation,
+  discardingCitationIndex = null,
   className = '',
 }) => {
   if (citations.length === 0) {
@@ -59,12 +63,33 @@ export const CitationList: React.FC<CitationListProps> = ({
             <Badge variant={getRelevanceVariant(citation.relevance)} size="sm">
               {citation.relevance}
             </Badge>
-            {citation.pageNumber && (
-              <span className="text-small text-text-secondary flex items-center gap-xs">
-                <span className="material-symbols-outlined text-sm">description</span>
-                p. {citation.pageNumber}
-              </span>
-            )}
+            <div className="flex items-center gap-sm">
+              {citation.pageNumber && (
+                <span className="text-small text-text-secondary flex items-center gap-xs">
+                  <span className="material-symbols-outlined text-sm">description</span>
+                  p. {citation.pageNumber}
+                </span>
+              )}
+              {onDiscardCitation && (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDiscardCitation(index);
+                  }}
+                  onKeyDown={(event) => {
+                    event.stopPropagation();
+                  }}
+                  disabled={discardingCitationIndex !== null}
+                  className="inline-flex items-center gap-xs px-sm py-xs rounded-md border border-border text-small text-text-secondary hover:text-error hover:border-error/50 hover:bg-error/5 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    {discardingCitationIndex === index ? 'hourglass_top' : 'delete'}
+                  </span>
+                  {discardingCitationIndex === index ? 'Suppression...' : 'Discard'}
+                </button>
+              )}
+            </div>
           </div>
           <blockquote className="text-body text-text-primary italic border-l-2 border-primary/30 pl-md mb-xs">
             &ldquo;{citation.text}&rdquo;

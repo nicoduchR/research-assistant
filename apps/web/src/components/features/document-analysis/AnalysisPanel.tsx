@@ -17,6 +17,8 @@ interface AnalysisPanelProps {
   analysisStatus: string | null;
   documentName: string;
   onCitationClick?: (pageNumber: number, text: string) => void;
+  onDiscardCitation?: (citationIndex: number) => void;
+  discardingCitationIndex?: number | null;
   className?: string;
 }
 
@@ -27,6 +29,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   analysisStatus,
   documentName,
   onCitationClick,
+  onDiscardCitation,
+  discardingCitationIndex = null,
   className = '',
 }) => {
   if (isLoading || analysisStatus === 'analyzing' || analysisStatus === 'pending') {
@@ -120,6 +124,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           <CitationList
             citations={analysis.keyCitations}
             onCitationClick={onCitationClick}
+            onDiscardCitation={onDiscardCitation}
+            discardingCitationIndex={discardingCitationIndex}
           />
         </CardContent>
       </Card>

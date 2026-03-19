@@ -255,6 +255,34 @@ export class DocumentsService {
     return analysis;
   }
 
+  async discardDocumentCitation(
+    documentId: string,
+    userId: string,
+    citationIndex: number,
+  ): Promise<DocumentAnalysis> {
+    if (citationIndex < 0) {
+      throw new BadRequestException('Citation index must be a non-negative integer');
+    }
+
+    const analysis = await this.getDocumentAnalysis(documentId, userId);
+    const citations = Array.isArray(analysis.keyCitations)
+      ? analysis.keyCitations
+      : [];
+
+    if (citationIndex >= citations.length) {
+      throw new BadRequestException('Citation index out of range');
+    }
+
+    analysis.keyCitations = citations.filter((_, index) => index !== citationIndex);
+
+    const updatedAnalysis = await this.documentAnalysisRepository.save(analysis);
+    this.logger.log(
+      `Discarded citation index ${citationIndex} from document ${documentId}; remaining=${updatedAnalysis.keyCitations.length}`,
+    );
+
+    return updatedAnalysis;
+  }
+
   async getDocumentForServing(
     documentId: string,
     userId: string,

@@ -3,15 +3,20 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import type { Document, DocumentAnalysis } from '@repo/types';
-import { getDocumentAnalysis, listDocuments } from '@/src/lib/api/documents';
+import {
+  discardDocumentCitation,
+  getDocumentAnalysis,
+  listDocuments,
+} from '@/src/lib/api/documents';
 import { usePdfViewerStore } from '@/src/lib/store/pdfViewerStore';
 import { AnalysisPanel } from '@/src/components/features/document-analysis/AnalysisPanel';
 import { PdfViewer } from '@/src/components/features/pdf-viewer/PdfViewer';
 import { Spinner } from '@/src/components/atoms/Spinner';
 import Header from '@/src/components/Header';
 import { ToastContainer } from '@/src/components/molecules/Toast/ToastContainer';
+import { useToastStore } from '@/src/lib/store/toastStore';
 import { WS_EVENTS } from '@repo/types';
-import { connectSocket, getSocket } from '@/src/lib/websocket-client';
+import { connectSocket } from '@/src/lib/websocket-client';
 import type { AnalysisCompleteEvent, AnalysisErrorEvent } from '@repo/types';
 
 export default function DocumentDetailPage() {
@@ -23,11 +28,13 @@ export default function DocumentDetailPage() {
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
   const [isLoadingDoc, setIsLoadingDoc] = useState(true);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
+  const [discardingCitationIndex, setDiscardingCitationIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const openViewer = usePdfViewerStore((s) => s.openViewer);
   const setPage = usePdfViewerStore((s) => s.setPage);
   const setHighlightText = usePdfViewerStore((s) => s.setHighlightText);
+  const addToast = useToastStore((s) => s.addToast);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch document data
@@ -115,6 +122,32 @@ export default function DocumentDetailPage() {
     [setPage, setHighlightText],
   );
 
+  const handleDiscardCitation = useCallback(
+    async (citationIndex: number) => {
+      if (!documentId) return;
+      if (discardingCitationIndex !== null) return;
+
+      setDiscardingCitationIndex(citationIndex);
+      try {
+        const updatedAnalysis = await discardDocumentCitation(
+          documentId,
+          citationIndex,
+        );
+        setAnalysis(updatedAnalysis);
+        addToast('Citation supprimee', 'success');
+      } catch {
+        addToast(
+          'Impossible de supprimer cette citation',
+          'error',
+          'Veuillez reessayer.',
+        );
+      } finally {
+        setDiscardingCitationIndex(null);
+      }
+    },
+    [addToast, discardingCitationIndex, documentId],
+  );
+
   if (isLoadingDoc) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -172,6 +205,8 @@ export default function DocumentDetailPage() {
             analysisStatus={document?.analysisStatus ?? null}
             documentName={document?.fileName ?? ''}
             onCitationClick={handleCitationClick}
+            onDiscardCitation={handleDiscardCitation}
+            discardingCitationIndex={discardingCitationIndex}
           />
         </div>
 

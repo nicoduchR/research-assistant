@@ -12,6 +12,7 @@ import {
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  ParseIntPipe,
   ParseUUIDPipe,
   StreamableFile,
 } from '@nestjs/common';
@@ -102,6 +103,23 @@ export class DocumentsController {
     }
 
     return this.documentsService.getDocumentAnalysis(id, req.user.userId);
+  }
+
+  @Delete(':id/analysis/citations/:citationIndex')
+  async discardDocumentCitation(
+    @Req() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('citationIndex', ParseIntPipe) citationIndex: number,
+  ) {
+    if (!req.user || !req.user.userId) {
+      throw new BadRequestException('Invalid authentication token');
+    }
+
+    return this.documentsService.discardDocumentCitation(
+      id,
+      req.user.userId,
+      citationIndex,
+    );
   }
 
   @Delete(':id')

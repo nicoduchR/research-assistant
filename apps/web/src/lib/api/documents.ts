@@ -34,6 +34,16 @@ export const getDocumentAnalysis = async (id: string): Promise<DocumentAnalysis>
   return response.data;
 };
 
+export const discardDocumentCitation = async (
+  documentId: string,
+  citationIndex: number,
+): Promise<DocumentAnalysis> => {
+  const response = await apiClient.delete<DocumentAnalysis>(
+    `/documents/${documentId}/analysis/citations/${citationIndex}`,
+  );
+  return response.data;
+};
+
 export const getDocumentFileUrl = (documentId: string): string => {
   return `${API_BASE_URL}/api/v1/documents/${documentId}/file`;
 };
