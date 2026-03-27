@@ -45,6 +45,10 @@ export type {
   CitationResult,
   LiteratureReviewResult,
   AiHealthResponse,
+  KeywordSuggestionIntent,
+  KeywordSuggestion,
+  KeywordSuggestionContextDocument,
+  KeywordSuggestionsResponse,
 } from './ai';
 
 // Literature Review types (Story 3.3)

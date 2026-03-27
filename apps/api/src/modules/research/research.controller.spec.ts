@@ -10,6 +10,7 @@ describe('ResearchController', () => {
 
   const mockResearchService = {
     getUserScope: jest.fn(),
+    generateKeywordSuggestions: jest.fn(),
     createOrUpdateScope: jest.fn(),
   };
 
@@ -103,6 +104,37 @@ describe('ResearchController', () => {
       await controller.createOrUpdateScope(req, dto);
 
       expect(service.createOrUpdateScope).toHaveBeenCalledWith(userId, dto);
+    });
+  });
+
+  describe('getKeywordSuggestions', () => {
+    it('should generate suggestions for authenticated user', async () => {
+      const userId = 'user-123';
+      const req = { user: { userId } };
+      const response = {
+        generatedAt: new Date().toISOString(),
+        basedOn: {
+          scopeTitle: 'Scope',
+          documentCount: 2,
+          analyzedDocumentCount: 2,
+          citationCount: 8,
+        },
+        suggestions: [
+          {
+            keyword: 'mixed methods',
+            intent: 'methodology',
+            rationale: 'Adds methodological depth.',
+            ebscoQuery: '"mixed methods" AND "higher education"',
+            relatedQuestion: 'How to triangulate findings?',
+          },
+        ],
+      };
+      service.generateKeywordSuggestions.mockResolvedValue(response as any);
+
+      const result = await controller.getKeywordSuggestions(req);
+
+      expect(service.generateKeywordSuggestions).toHaveBeenCalledWith(userId);
+      expect(result).toEqual(response);
     });
   });
 });

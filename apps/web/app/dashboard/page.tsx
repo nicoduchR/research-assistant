@@ -6,6 +6,7 @@ import { useResearchStore } from '@/src/lib/store/researchStore';
 import { useDocumentStore } from '@/src/lib/store/documentStore';
 import { useToastStore } from '@/src/lib/store/toastStore';
 import { ScopeSetupModal } from '@/src/components/features/research/ScopeSetupModal';
+import { KeywordSuggestionsPanel } from '@/src/components/features/research/KeywordSuggestionsPanel';
 import { UploadZone } from '@/src/components/features/upload/UploadZone';
 import { DocumentList } from '@/src/components/features/upload/DocumentList';
 import { GenerateReviewButton } from '@/src/components/features/processing/GenerateReviewButton';
@@ -165,6 +166,12 @@ export default function DashboardPage() {
                 Modifier
               </button>
             </div>
+          </div>
+        )}
+
+        {hasCompletedSetup && (
+          <div className="mb-8">
+            <KeywordSuggestionsPanel />
           </div>
         )}
 

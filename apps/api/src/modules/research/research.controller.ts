@@ -9,6 +9,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
+import type { KeywordSuggestionsResponse } from '@repo/types';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ResearchService } from './research.service';
 import { CreateResearchScopeDto } from './dto/create-research-scope.dto';
@@ -26,6 +27,15 @@ export class ResearchController {
 
     // Return null if no scope exists (frontend handles this case)
     return scope || null;
+  }
+
+  @Get('keyword-suggestions')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  async getKeywordSuggestions(
+    @Req() req: any,
+  ): Promise<KeywordSuggestionsResponse> {
+    const userId = req.user.userId;
+    return this.researchService.generateKeywordSuggestions(userId);
   }
 
   @Post()

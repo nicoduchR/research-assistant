@@ -1,5 +1,9 @@
 import apiClient from './axiosInstance';
-import { ResearchScope, CreateResearchScopeDto } from '@repo/types';
+import {
+  ResearchScope,
+  CreateResearchScopeDto,
+  KeywordSuggestionsResponse,
+} from '@repo/types';
 
 /**
  * Fetch the authenticated user's research scope
@@ -26,5 +30,15 @@ export const createOrUpdateResearchScope = async (
   data: CreateResearchScopeDto
 ): Promise<ResearchScope> => {
   const response = await apiClient.post<ResearchScope>('/research-scopes', data);
+  return response.data;
+};
+
+/**
+ * Generate keyword suggestions based on user's scope, documents, and analyses
+ */
+export const fetchKeywordSuggestions = async (): Promise<KeywordSuggestionsResponse> => {
+  const response = await apiClient.get<KeywordSuggestionsResponse>(
+    '/research-scopes/keyword-suggestions',
+  );
   return response.data;
 };

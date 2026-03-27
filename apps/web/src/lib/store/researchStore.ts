@@ -1,7 +1,15 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { ResearchScope, CreateResearchScopeDto } from '@repo/types';
-import { fetchResearchScope, createOrUpdateResearchScope } from '../api/research';
+import {
+  ResearchScope,
+  CreateResearchScopeDto,
+  KeywordSuggestionsResponse,
+} from '@repo/types';
+import {
+  fetchResearchScope,
+  createOrUpdateResearchScope,
+  fetchKeywordSuggestions as fetchKeywordSuggestionsApi,
+} from '../api/research';
 
 // Research store state
 interface ResearchState {
@@ -9,12 +17,17 @@ interface ResearchState {
   hasCompletedSetup: boolean;
   isLoading: boolean;
   error: string | null;
+  keywordSuggestions: KeywordSuggestionsResponse | null;
+  isKeywordSuggestionsLoading: boolean;
+  keywordSuggestionsError: string | null;
 }
 
 // Research store actions
 interface ResearchActions {
   fetchScope: () => Promise<void>;
   createScope: (data: CreateResearchScopeDto) => Promise<ResearchScope>;
+  fetchKeywordSuggestions: () => Promise<KeywordSuggestionsResponse>;
+  clearKeywordSuggestions: () => void;
   clearScope: () => void;
   setError: (error: string | null) => void;
 }
@@ -24,12 +37,15 @@ type ResearchStore = ResearchState & ResearchActions;
 
 export const useResearchStore = create<ResearchStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       scope: null,
       hasCompletedSetup: false,
       isLoading: false,
       error: null,
+      keywordSuggestions: null,
+      isKeywordSuggestionsLoading: false,
+      keywordSuggestionsError: null,
 
       // Fetch user's research scope
       fetchScope: async () => {
@@ -75,6 +91,37 @@ export const useResearchStore = create<ResearchStore>()(
         }
       },
 
+      fetchKeywordSuggestions: async (): Promise<KeywordSuggestionsResponse> => {
+        set({ isKeywordSuggestionsLoading: true, keywordSuggestionsError: null });
+        try {
+          const keywordSuggestions = await fetchKeywordSuggestionsApi();
+          set({
+            keywordSuggestions,
+            isKeywordSuggestionsLoading: false,
+            keywordSuggestionsError: null,
+          });
+          return keywordSuggestions;
+        } catch (error: any) {
+          console.error('Failed to fetch keyword suggestions:', error);
+          const errorMessage =
+            error.response?.data?.message ||
+            'Failed to generate keyword suggestions';
+          set({
+            isKeywordSuggestionsLoading: false,
+            keywordSuggestionsError: errorMessage,
+          });
+          throw new Error(errorMessage);
+        }
+      },
+
+      clearKeywordSuggestions: () => {
+        set({
+          keywordSuggestions: null,
+          keywordSuggestionsError: null,
+          isKeywordSuggestionsLoading: false,
+        });
+      },
+
       // Clear scope (e.g., on logout)
       clearScope: () => {
         set({
@@ -82,6 +129,9 @@ export const useResearchStore = create<ResearchStore>()(
           hasCompletedSetup: false,
           isLoading: false,
           error: null,
+          keywordSuggestions: null,
+          isKeywordSuggestionsLoading: false,
+          keywordSuggestionsError: null,
         });
       },
 
