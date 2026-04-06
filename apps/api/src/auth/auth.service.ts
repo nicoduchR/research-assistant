@@ -37,6 +37,10 @@ export class AuthService {
     return user;
   }
 
+  async findUserByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
   generateJwtToken(user: User): string {
     const payload = {
       sub: user.id,

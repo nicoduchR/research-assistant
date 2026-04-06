@@ -7,6 +7,9 @@ import { AuthController } from './auth.controller';
 import { AuthService} from './auth.service';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ApiKeyAuthGuard } from './guards/api-key-auth.guard';
+import { CombinedAuthGuard } from './guards/combined-auth.guard';
 import { User } from '../entities/user.entity';
 
 @Module({
@@ -28,7 +31,7 @@ import { User } from '../entities/user.entity';
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, JwtStrategy],
-  exports: [AuthService, JwtModule],
+  providers: [AuthService, GoogleStrategy, JwtStrategy, JwtAuthGuard, ApiKeyAuthGuard, CombinedAuthGuard],
+  exports: [AuthService, JwtModule, JwtAuthGuard, ApiKeyAuthGuard, CombinedAuthGuard],
 })
 export class AuthModule {}

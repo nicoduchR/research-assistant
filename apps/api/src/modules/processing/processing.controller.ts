@@ -12,14 +12,14 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CombinedAuthGuard } from '../../auth/guards/combined-auth.guard';
 import { ProcessingService } from './processing.service';
 import { CreateProcessingJobDto } from './dto/create-processing-job.dto';
 import { ProcessingJobResponseDto } from './dto/processing-job-response.dto';
 import { ProcessingJob, ProcessingJobStatus } from '../../entities/processing-job.entity';
 
 @Controller('processing-jobs')
-@UseGuards(JwtAuthGuard)
+@UseGuards(CombinedAuthGuard)
 export class ProcessingController {
   constructor(private readonly processingService: ProcessingService) {}
 

@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CombinedAuthGuard } from '../../auth/guards/combined-auth.guard';
 import { DocumentsService } from './documents.service';
 import { DocumentResponseDto, DocumentListItemDto } from './dto/document-response.dto';
 import { memoryStorage } from 'multer';
@@ -29,7 +29,7 @@ import { Response } from 'express';
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 @Controller('documents')
-@UseGuards(JwtAuthGuard)
+@UseGuards(CombinedAuthGuard)
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 

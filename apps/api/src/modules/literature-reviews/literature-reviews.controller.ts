@@ -11,13 +11,13 @@ import {
   ParseUUIDPipe,
   ValidationPipe,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CombinedAuthGuard } from '../../auth/guards/combined-auth.guard';
 import { LiteratureReviewsService } from './literature-reviews.service';
 import { UpdateLiteratureReviewDto } from './dto/update-literature-review.dto';
 import { ExportBibliographyDto } from './dto/export-bibliography.dto';
 
 @Controller('literature-reviews')
-@UseGuards(JwtAuthGuard)
+@UseGuards(CombinedAuthGuard)
 export class LiteratureReviewsController {
   constructor(
     private readonly literatureReviewsService: LiteratureReviewsService,

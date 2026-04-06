@@ -8,6 +8,7 @@ import { ProcessingJob } from '../../entities/processing-job.entity';
 import { LiteratureReview } from '../../entities/literature-review.entity';
 import { Citation } from '../../entities/citation.entity';
 import { DocumentAnalysis } from '../../entities/document-analysis.entity';
+import { AuthModule } from '../../auth/auth.module';
 import { AiModule } from '../ai/ai.module';
 import { ProcessingGatewayModule } from '../../gateways/processing-gateway.module';
 import { PdfExtractionProcessor } from '../../jobs/pdf-extraction.processor';
@@ -57,6 +58,7 @@ import { ProcessingController } from './processing.controller';
     }),
     TypeOrmModule.forFeature([ResearchDocument, ResearchScope, ProcessingJob, LiteratureReview, Citation, DocumentAnalysis]),
     HttpModule,
+    AuthModule,
     AiModule,
     ProcessingGatewayModule,
   ],

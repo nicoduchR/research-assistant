@@ -10,12 +10,12 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { KeywordSuggestionsResponse } from '@repo/types';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { CombinedAuthGuard } from '../../auth/guards/combined-auth.guard';
 import { ResearchService } from './research.service';
 import { CreateResearchScopeDto } from './dto/create-research-scope.dto';
 
 @Controller('research-scopes')
-@UseGuards(JwtAuthGuard)
+@UseGuards(CombinedAuthGuard)
 @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
 export class ResearchController {
   constructor(private readonly researchService: ResearchService) {}
