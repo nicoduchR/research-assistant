@@ -8,7 +8,7 @@ dotenv.config({ path: envPath });
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/research_assistant_dev',
+  url: process.env.DATABASE_URL || 'postgresql://postgres:example@localhost:5432/research_assistant_dev',
   entities: [
     resolve(process.cwd(), 'src/entities/*.entity.{ts,js}'),
   ],

@@ -11,6 +11,8 @@ import type {
   DocumentAnalysisResult,
   KeywordSuggestion,
   KeywordSuggestionContextDocument,
+  EvidenceRow,
+  EbscoQuerySuggestion,
 } from '@repo/types';
 
 const SYSTEM_PROMPT = `You are an academic research assistant specializing in literature review synthesis.
@@ -94,6 +96,60 @@ Constraints:
 - Make suggestions non-redundant and academically relevant.
 - For ebscoQuery, include practical boolean operators (AND/OR/NOT), quotes when useful, and at least one complementary term.
 - Prefer suggestions grounded in document limitations, recurring concepts, and citation signals.`;
+
+const THESIS_QUESTION_ANSWER_PROMPT = `You are an academic writing assistant for MBA thesis work in Information Systems.
+Your task is to answer ONE thesis question in formal French, using ONLY the provided analyzed corpus.
+
+Return ONLY valid JSON (no markdown fences) with this exact structure:
+{
+  "answerMarkdown": "French academic answer in markdown, with a final section titled '## Preuves manquantes' when evidence is insufficient.",
+  "evidenceRows": [
+    {
+      "claim": "specific claim stated in the answer",
+      "documentId": "uuid",
+      "fileName": "source file name",
+      "pageNumber": 12,
+      "sourceSnippet": "short supporting snippet from analysis context",
+      "limitation": "main limitation for this evidence",
+      "confidence": "high"
+    }
+  ],
+  "gaps": [
+    "missing evidence or unresolved point"
+  ],
+  "confidenceScore": 74
+}
+
+Rules:
+- Language: French only.
+- Evidence must use only provided corpus documents.
+- confidence must be one of: low, medium, high.
+- confidenceScore must be an integer from 0 to 100.
+- If support is weak, keep answer partial and explicit, do not hallucinate sources.
+- evidenceRows should include 3 to 12 rows whenever possible.
+- sourceSnippet must stay concise and faithful to provided context.`;
+
+const THESIS_EBSCO_QUERY_PROMPT = `You are an expert EBSCO query strategist for academic thesis research.
+Your task is to generate copy-ready boolean queries for ONE thesis question, grounded in the provided analyzed corpus.
+
+Return ONLY valid JSON (no markdown fences) with this exact structure:
+{
+  "queries": [
+    {
+      "label": "short label for the query angle",
+      "query": "\"digital transformation\" AND \"industry 4.0\"",
+      "rationale": "why this query is useful for this specific thesis question",
+      "intent": "deepen"
+    }
+  ]
+}
+
+Rules:
+- Provide 6 to 10 queries.
+- intent must be one of: broaden, deepen, complementary, methodology, emerging.
+- Keep queries practical for direct copy/paste into EBSCO.
+- Use only the thesis question and corpus evidence provided.
+- Language for labels and rationale: French.`;
 
 @Injectable()
 export class AiService implements OnModuleInit {
@@ -326,6 +382,209 @@ ${documentsSection}`;
     }
   }
 
+  async generateQuestionAnswerWithEvidence(
+    researchScope: { title: string; problematique: string; objectives?: string | null },
+    question: {
+      code: string;
+      section: string;
+      title: string;
+      questionText: string;
+      targetReferences: string[];
+    },
+    documents: KeywordSuggestionContextDocument[],
+  ): Promise<{
+    answerMarkdown: string;
+    evidenceRows: EvidenceRow[];
+    gaps: string[];
+    confidenceScore: number;
+  }> {
+    if (!documents.length) {
+      throw new Error('At least one analyzed document is required.');
+    }
+
+    const model = this.configService.get<string>(
+      'ANTHROPIC_MODEL',
+      'claude-sonnet-4-5-20250929',
+    );
+
+    const scopeSection = [
+      `Research Title: ${researchScope.title}`,
+      `Problematique: ${researchScope.problematique}`,
+      researchScope.objectives ? `Objectives: ${researchScope.objectives}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const questionSection = [
+      `Question Code: ${question.code}`,
+      `Section: ${question.section}`,
+      `Question Title: ${question.title}`,
+      `Question Text: ${question.questionText}`,
+      `Target References: ${question.targetReferences.join('; ') || 'none'}`,
+    ].join('\n');
+
+    const documentsSection = documents
+      .map((document, index) => {
+        const citations =
+          document.keyCitations && document.keyCitations.length > 0
+            ? document.keyCitations
+                .map(
+                  (citation, citationIndex) =>
+                    `  ${citationIndex + 1}. (${citation.relevance}) "${this.truncateText(citation.text, 220)}" | context: ${this.truncateText(citation.context, 180)}`,
+                )
+                .join('\n')
+            : '  none';
+
+        const limitations =
+          document.limitations && document.limitations.length > 0
+            ? document.limitations.map((limitation) => `- ${limitation}`).join('\n')
+            : '- none';
+
+        const alignedObjectives =
+          document.alignedObjectives && document.alignedObjectives.length > 0
+            ? document.alignedObjectives.map((objective) => `- ${objective}`).join('\n')
+            : '- none';
+
+        return [
+          `--- DOCUMENT ${index + 1} ---`,
+          `id: ${document.id}`,
+          `fileName: ${document.fileName}`,
+          `title: ${document.title ?? 'unknown'}`,
+          `year: ${document.year ?? 'unknown'}`,
+          `journal: ${document.journal ?? 'unknown'}`,
+          `methodologyType: ${document.methodologyType ?? 'unknown'}`,
+          `summary: ${this.truncateText(document.summary, 1200)}`,
+          `alignedObjectives:\n${alignedObjectives}`,
+          `limitations:\n${limitations}`,
+          `keyCitations:\n${citations}`,
+        ].join('\n');
+      })
+      .join('\n\n');
+
+    const userPrompt = `Answer this thesis question with strict corpus grounding.
+
+--- RESEARCH SCOPE ---
+${scopeSection}
+
+--- THESIS QUESTION ---
+${questionSection}
+
+--- ANALYZED CORPUS ---
+${documentsSection}`;
+
+    try {
+      const message = await this.client.messages.create({
+        model,
+        max_tokens: 4096,
+        system: THESIS_QUESTION_ANSWER_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+      });
+
+      const responseText =
+        message.content[0].type === 'text' ? message.content[0].text : '';
+
+      this.logger.log(
+        `Question answer generated (${question.code}): ${message.usage.input_tokens} input tokens, ${message.usage.output_tokens} output tokens`,
+      );
+
+      return this.parseQuestionAnswerResponse(responseText);
+    } catch (error) {
+      this.handleApiError(error, 'generate-question-answer', {
+        questionCode: question.code,
+        documentCount: documents.length,
+      });
+    }
+  }
+
+  async generateQuestionScopedEbscoQueries(
+    researchScope: { title: string; problematique: string; objectives?: string | null },
+    question: {
+      code: string;
+      section: string;
+      title: string;
+      questionText: string;
+      targetReferences: string[];
+    },
+    documents: KeywordSuggestionContextDocument[],
+  ): Promise<EbscoQuerySuggestion[]> {
+    if (!documents.length) {
+      throw new Error('At least one analyzed document is required.');
+    }
+
+    const model = this.configService.get<string>(
+      'ANTHROPIC_MODEL',
+      'claude-sonnet-4-5-20250929',
+    );
+
+    const scopeSection = [
+      `Research Title: ${researchScope.title}`,
+      `Problematique: ${researchScope.problematique}`,
+      researchScope.objectives ? `Objectives: ${researchScope.objectives}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const questionSection = [
+      `Question Code: ${question.code}`,
+      `Section: ${question.section}`,
+      `Question Title: ${question.title}`,
+      `Question Text: ${question.questionText}`,
+      `Target References: ${question.targetReferences.join('; ') || 'none'}`,
+    ].join('\n');
+
+    const corpusSnapshot = documents
+      .map((document) => {
+        const firstCitation =
+          document.keyCitations && document.keyCitations.length > 0
+            ? this.truncateText(document.keyCitations[0].text, 220)
+            : 'none';
+        return [
+          `id: ${document.id}`,
+          `fileName: ${document.fileName}`,
+          `title: ${document.title ?? 'unknown'}`,
+          `year: ${document.year ?? 'unknown'}`,
+          `methodologyType: ${document.methodologyType ?? 'unknown'}`,
+          `summary: ${this.truncateText(document.summary, 600)}`,
+          `firstCitation: ${firstCitation}`,
+        ].join('\n');
+      })
+      .join('\n\n');
+
+    const userPrompt = `Generate EBSCO boolean queries for this thesis question.
+
+--- RESEARCH SCOPE ---
+${scopeSection}
+
+--- THESIS QUESTION ---
+${questionSection}
+
+--- ANALYZED CORPUS SNAPSHOT ---
+${corpusSnapshot}`;
+
+    try {
+      const message = await this.client.messages.create({
+        model,
+        max_tokens: 2500,
+        system: THESIS_EBSCO_QUERY_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }],
+      });
+
+      const responseText =
+        message.content[0].type === 'text' ? message.content[0].text : '';
+
+      this.logger.log(
+        `EBSCO queries generated (${question.code}): ${message.usage.input_tokens} input tokens, ${message.usage.output_tokens} output tokens`,
+      );
+
+      return this.parseQuestionEbscoQueryResponse(responseText);
+    } catch (error) {
+      this.handleApiError(error, 'generate-question-ebsco-queries', {
+        questionCode: question.code,
+        documentCount: documents.length,
+      });
+    }
+  }
+
   private parseResponse(responseText: string): LiteratureReviewResult {
     // Extract citations JSON block — tolerant regex handles:
     // ```json:citations, ```json, or ```citations variants
@@ -482,6 +741,172 @@ ${documentsSection}`;
       );
       throw new UnrecoverableError(
         'Failed to parse AI keyword suggestions response. The response was not valid JSON.',
+      );
+    }
+  }
+
+  private parseQuestionAnswerResponse(responseText: string): {
+    answerMarkdown: string;
+    evidenceRows: EvidenceRow[];
+    gaps: string[];
+    confidenceScore: number;
+  } {
+    let jsonText = responseText.trim();
+    const codeBlockMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
+    if (codeBlockMatch) {
+      jsonText = codeBlockMatch[1].trim();
+    }
+
+    try {
+      const parsed = JSON.parse(jsonText);
+
+      const answerMarkdown = this.truncateText(
+        String(parsed.answerMarkdown || '').trim(),
+        500000,
+      );
+
+      const rawEvidence = Array.isArray(parsed.evidenceRows)
+        ? parsed.evidenceRows
+        : [];
+
+      const evidenceRows: EvidenceRow[] = rawEvidence
+        .map((row: Record<string, unknown>) => {
+          const claim = this.truncateText(String(row.claim || '').trim(), 2000);
+          const documentId = String(row.documentId || '').trim();
+          const fileName = this.truncateText(String(row.fileName || '').trim(), 255);
+          const sourceSnippet = this.truncateText(
+            String(row.sourceSnippet || '').trim(),
+            4000,
+          );
+          const limitation = this.truncateText(
+            String(row.limitation || '').trim(),
+            1000,
+          );
+
+          if (!claim || !documentId || !fileName || !sourceSnippet || !limitation) {
+            return null;
+          }
+
+          const pageCandidate =
+            row.pageNumber === null ? null : Number(row.pageNumber);
+          const pageNumber =
+            pageCandidate === null || Number.isNaN(pageCandidate)
+              ? null
+              : Math.max(1, Math.round(pageCandidate));
+
+          const confidenceCandidate = String(row.confidence || '').trim();
+          const confidence = ['low', 'medium', 'high'].includes(
+            confidenceCandidate,
+          )
+            ? (confidenceCandidate as EvidenceRow['confidence'])
+            : 'medium';
+
+          return {
+            claim,
+            documentId,
+            fileName,
+            pageNumber,
+            sourceSnippet,
+            limitation,
+            confidence,
+          };
+        })
+        .filter((row: EvidenceRow | null): row is EvidenceRow => row !== null)
+        .slice(0, 24);
+
+      const gaps = Array.isArray(parsed.gaps)
+        ? parsed.gaps
+            .map((gap: unknown) => this.truncateText(String(gap || '').trim(), 2000))
+            .filter((gap: string | undefined): gap is string => Boolean(gap))
+            .slice(0, 24)
+        : [];
+
+      const confidenceScore = Math.min(
+        100,
+        Math.max(0, Math.round(Number(parsed.confidenceScore) || 0)),
+      );
+
+      if (!answerMarkdown) {
+        throw new UnrecoverableError(
+          'AI response did not include answerMarkdown.',
+        );
+      }
+
+      return {
+        answerMarkdown,
+        evidenceRows,
+        gaps,
+        confidenceScore,
+      };
+    } catch (e) {
+      this.logger.error(
+        `Failed to parse thesis question answer response: ${e instanceof Error ? e.message : String(e)}`,
+      );
+      throw new UnrecoverableError(
+        'Failed to parse thesis question answer response. The response was not valid JSON.',
+      );
+    }
+  }
+
+  private parseQuestionEbscoQueryResponse(
+    responseText: string,
+  ): EbscoQuerySuggestion[] {
+    let jsonText = responseText.trim();
+    const codeBlockMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
+    if (codeBlockMatch) {
+      jsonText = codeBlockMatch[1].trim();
+    }
+
+    try {
+      const parsed = JSON.parse(jsonText);
+      const rawQueries = Array.isArray(parsed.queries) ? parsed.queries : [];
+
+      const queries: EbscoQuerySuggestion[] = rawQueries
+        .map((query: Record<string, unknown>) => {
+          const label = this.truncateText(String(query.label || '').trim(), 120);
+          const queryText = this.truncateText(String(query.query || '').trim(), 500);
+          const rationale = this.truncateText(
+            String(query.rationale || '').trim(),
+            420,
+          );
+          const intentCandidate = String(query.intent || '').trim();
+          const intent = ['broaden', 'deepen', 'complementary', 'methodology', 'emerging'].includes(
+            intentCandidate,
+          )
+            ? (intentCandidate as EbscoQuerySuggestion['intent'])
+            : 'complementary';
+
+          if (!label || !queryText || !rationale) {
+            return null;
+          }
+
+          return {
+            label,
+            query: queryText,
+            rationale,
+            intent,
+          } satisfies EbscoQuerySuggestion;
+        })
+        .filter(
+          (
+            query: EbscoQuerySuggestion | null,
+          ): query is EbscoQuerySuggestion => query !== null,
+        )
+        .slice(0, 10);
+
+      if (!queries.length) {
+        throw new UnrecoverableError(
+          'AI response did not contain valid EBSCO query suggestions.',
+        );
+      }
+
+      return queries;
+    } catch (e) {
+      this.logger.error(
+        `Failed to parse thesis EBSCO query response: ${e instanceof Error ? e.message : String(e)}`,
+      );
+      throw new UnrecoverableError(
+        'Failed to parse thesis EBSCO query response. The response was not valid JSON.',
       );
     }
   }

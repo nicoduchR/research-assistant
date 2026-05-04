@@ -16,6 +16,7 @@ import Header from '@/src/components/Header';
 import { WS_EVENTS } from '@repo/types';
 import type { AnalysisCompleteEvent, AnalysisErrorEvent } from '@repo/types';
 import { connectSocket } from '@/src/lib/websocket-client';
+import { listThesisQuestions } from '@/src/lib/api/thesis-questions';
 
 export default function DashboardPage() {
   const { user, isLoading, isAuthenticated, initializeAuth } = useAuthStore();
@@ -23,6 +24,11 @@ export default function DashboardPage() {
   const { documents, fetchDocuments } = useDocumentStore();
   const addToast = useToastStore((state) => state.addToast);
   const [showScopeModal, setShowScopeModal] = useState(false);
+  const [thesisProgress, setThesisProgress] = useState<{
+    treated: number;
+    total: number;
+    nextQuestionCode: string | null;
+  } | null>(null);
 
   useEffect(() => {
     // Initialize auth state on mount
@@ -60,6 +66,29 @@ export default function DashboardPage() {
       fetchScope();
     }
   }, [isAuthenticated, user, fetchScope]);
+
+  useEffect(() => {
+    async function loadThesisProgress() {
+      try {
+        const questions = await listThesisQuestions();
+        const treated = questions.filter((question) => question.status !== 'a_traiter');
+        const nextQuestion =
+          questions.find((question) => question.status !== 'validee') || null;
+
+        setThesisProgress({
+          treated: treated.length,
+          total: questions.length,
+          nextQuestionCode: nextQuestion?.code ?? null,
+        });
+      } catch {
+        setThesisProgress(null);
+      }
+    }
+
+    if (isAuthenticated && hasCompletedSetup) {
+      loadThesisProgress();
+    }
+  }, [isAuthenticated, hasCompletedSetup]);
 
   useEffect(() => {
     // Show scope setup modal if user hasn't completed setup
@@ -172,6 +201,51 @@ export default function DashboardPage() {
         {hasCompletedSetup && (
           <div className="mb-8">
             <KeywordSuggestionsPanel />
+          </div>
+        )}
+
+        {hasCompletedSetup && (
+          <div className="mb-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">help</span>
+                  Questions de these (S1-S4)
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  Redigez vos reponses Q1-Q12 avec preuves structurees et requetes EBSCO.
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-xs text-slate-500 dark:text-slate-400">Progression</p>
+                <p className="text-xl font-semibold text-slate-900 dark:text-white">
+                  {thesisProgress?.treated ?? 0} / {thesisProgress?.total ?? 12}
+                </p>
+                {thesisProgress?.nextQuestionCode && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Prochaine question: {thesisProgress.nextQuestionCode}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center gap-3 flex-wrap">
+              <button
+                onClick={() => {
+                  window.location.href = '/thesis-questions';
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 text-sm font-medium"
+              >
+                <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                Ouvrir le module Questions de these
+              </button>
+              {thesisProgress?.nextQuestionCode && (
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  Focus recommande: {thesisProgress.nextQuestionCode}
+                </span>
+              )}
+            </div>
           </div>
         )}
 

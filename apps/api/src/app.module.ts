@@ -16,6 +16,7 @@ import { ProcessingModule } from './modules/processing/processing.module';
 import { AiModule } from './modules/ai/ai.module';
 import { ProcessingGatewayModule } from './gateways/processing-gateway.module';
 import { LiteratureReviewsModule } from './modules/literature-reviews/literature-reviews.module';
+import { ThesisQuestionsModule } from './modules/thesis-questions/thesis-questions.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { LiteratureReviewsModule } from './modules/literature-reviews/literature
     AiModule,
     ProcessingGatewayModule,
     LiteratureReviewsModule,
+    ThesisQuestionsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -82,3 +82,13 @@ export type {
   DocumentAnalysis,
   DocumentAnalysisResult,
 } from './document-analysis';
+
+export type {
+  ThesisQuestionStatus,
+  EvidenceConfidence,
+  EvidenceRow,
+  ThesisQuestion,
+  ThesisAnswerDraft,
+  EbscoQuerySuggestion,
+  EbscoQueryResponse,
+} from './thesis-question';
