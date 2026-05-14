@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { DocumentAnalysis } from '@repo/types';
+import type { BibliographicMetadata, DocumentAnalysis } from '@repo/types';
 import { Card, CardContent } from '@/src/components/atoms/Card';
 import { Spinner } from '@/src/components/atoms/Spinner';
 import { Badge } from '@/src/components/atoms/Badge';
@@ -19,6 +19,7 @@ interface AnalysisPanelProps {
   onCitationClick?: (pageNumber: number, text: string) => void;
   onDiscardCitation?: (citationIndex: number) => void;
   discardingCitationIndex?: number | null;
+  bibliographicMetadata?: BibliographicMetadata | null;
   className?: string;
 }
 
@@ -31,6 +32,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   onCitationClick,
   onDiscardCitation,
   discardingCitationIndex = null,
+  bibliographicMetadata,
   className = '',
 }) => {
   if (isLoading || analysisStatus === 'analyzing' || analysisStatus === 'pending') {
@@ -126,6 +128,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
             onCitationClick={onCitationClick}
             onDiscardCitation={onDiscardCitation}
             discardingCitationIndex={discardingCitationIndex}
+            bibliographicMetadata={bibliographicMetadata}
+            documentName={documentName}
           />
         </CardContent>
       </Card>

@@ -1,15 +1,19 @@
 'use client';
 
-import React from 'react';
-import type { KeyCitation } from '@repo/types';
+import React, { useState } from 'react';
+import type { BibliographicMetadata, KeyCitation } from '@repo/types';
 import { Badge } from '@/src/components/atoms/Badge';
 import { cn } from '@/src/lib/utils';
+import { formatApaInTextCitation } from '@/src/lib/citations/apa';
+import { useToastStore } from '@/src/lib/store/toastStore';
 
 interface CitationListProps {
   citations: KeyCitation[];
   onCitationClick?: (pageNumber: number, text: string) => void;
   onDiscardCitation?: (citationIndex: number) => void;
   discardingCitationIndex?: number | null;
+  bibliographicMetadata?: BibliographicMetadata | null;
+  documentName?: string;
   className?: string;
 }
 
@@ -26,8 +30,40 @@ export const CitationList: React.FC<CitationListProps> = ({
   onCitationClick,
   onDiscardCitation,
   discardingCitationIndex = null,
+  bibliographicMetadata,
+  documentName,
   className = '',
 }) => {
+  const addToast = useToastStore((s) => s.addToast);
+  const [copiedCitationIndex, setCopiedCitationIndex] = useState<number | null>(
+    null,
+  );
+
+  const handleCopyCitation = async (
+    citation: KeyCitation,
+    index: number,
+  ): Promise<void> => {
+    const formatted = formatApaInTextCitation(
+      citation,
+      bibliographicMetadata,
+      documentName,
+    );
+    try {
+      await navigator.clipboard.writeText(formatted);
+      setCopiedCitationIndex(index);
+      addToast('Citation copiee (APA 7e edition)', 'success');
+      window.setTimeout(() => {
+        setCopiedCitationIndex((current) => (current === index ? null : current));
+      }, 1500);
+    } catch {
+      addToast(
+        'Impossible de copier la citation',
+        'error',
+        'Verifiez les permissions du presse-papiers.',
+      );
+    }
+  };
+
   if (citations.length === 0) {
     return (
       <p className="text-small text-text-secondary italic">
@@ -70,6 +106,23 @@ export const CitationList: React.FC<CitationListProps> = ({
                   p. {citation.pageNumber}
                 </span>
               )}
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  void handleCopyCitation(citation, index);
+                }}
+                onKeyDown={(event) => {
+                  event.stopPropagation();
+                }}
+                title="Copier la citation au format APA 7e edition"
+                className="inline-flex items-center gap-xs px-sm py-xs rounded-md border border-border text-small text-text-secondary hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm">
+                  {copiedCitationIndex === index ? 'check' : 'content_copy'}
+                </span>
+                {copiedCitationIndex === index ? 'Copie' : 'Copier APA'}
+              </button>
               {onDiscardCitation && (
                 <button
                   type="button"

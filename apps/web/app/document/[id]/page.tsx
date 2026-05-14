@@ -207,6 +207,7 @@ export default function DocumentDetailPage() {
             onCitationClick={handleCitationClick}
             onDiscardCitation={handleDiscardCitation}
             discardingCitationIndex={discardingCitationIndex}
+            bibliographicMetadata={document?.bibliographicMetadata ?? null}
           />
         </div>
 
