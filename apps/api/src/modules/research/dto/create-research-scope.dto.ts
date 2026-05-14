@@ -20,4 +20,11 @@ export class CreateResearchScopeDto {
   @IsOptional()
   @MaxLength(1000)
   objectives?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(200, {
+    message: 'Personal theme must not exceed 200 characters',
+  })
+  personalTheme?: string;
 }

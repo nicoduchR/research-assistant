@@ -21,6 +21,9 @@ export function ResearchScopeForm({
     initialData?.problematique || ''
   );
   const [objectives, setObjectives] = useState(initialData?.objectives || '');
+  const [personalTheme, setPersonalTheme] = useState(
+    initialData?.personalTheme || ''
+  );
   const [errors, setErrors] = useState<Partial<Record<keyof CreateResearchScopeDto, string>>>({});
 
   const validate = (): boolean => {
@@ -42,6 +45,10 @@ export function ResearchScopeForm({
       newErrors.objectives = 'Objectives must be 1000 characters or less';
     }
 
+    if (personalTheme && personalTheme.trim().length > 200) {
+      newErrors.personalTheme = 'Personal theme must be 200 characters or less';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -57,6 +64,7 @@ export function ResearchScopeForm({
       title: title.trim(),
       problematique: problematique.trim(),
       objectives: objectives.trim() || undefined,
+      personalTheme: personalTheme.trim() || null,
     };
 
     await onSubmit(data);
@@ -121,6 +129,29 @@ export function ResearchScopeForm({
         />
         {errors.objectives && (
           <p className="text-red-500 text-sm mt-1">{errors.objectives}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="personalTheme" className="block text-sm font-medium text-gray-700 mb-1">
+          Thème personnel <span className="text-gray-400 font-normal">(optionnel)</span>
+        </label>
+        <Input
+          id="personalTheme"
+          type="text"
+          value={personalTheme}
+          onChange={(e) => setPersonalTheme(e.target.value)}
+          placeholder="ex. Transformation Digitale"
+          maxLength={200}
+          className={errors.personalTheme ? 'border-red-500' : ''}
+          disabled={isLoading}
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Oriente uniquement les suggestions de mots-clés EBSCO. N&apos;affecte
+          ni l&apos;analyse des documents ni les réponses de thèse.
+        </p>
+        {errors.personalTheme && (
+          <p className="text-red-500 text-sm mt-1">{errors.personalTheme}</p>
         )}
       </div>
 

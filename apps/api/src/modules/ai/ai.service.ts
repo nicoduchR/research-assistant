@@ -74,7 +74,8 @@ Your task is to propose high-value keywords and boolean queries for EBSCO-like d
 
 You will receive:
 1. A research scope (title, problematique, objectives)
-2. Evidence from already collected documents and article analyses
+2. Optionally a PERSONAL FOCUS (a specific theme the user wants to explore)
+3. Evidence from already collected documents and article analyses
 
 Return ONLY a valid JSON object with this exact structure (no markdown, no code blocks):
 {
@@ -95,7 +96,8 @@ Constraints:
 - Use the same language as the research scope.
 - Make suggestions non-redundant and academically relevant.
 - For ebscoQuery, include practical boolean operators (AND/OR/NOT), quotes when useful, and at least one complementary term.
-- Prefer suggestions grounded in document limitations, recurring concepts, and citation signals.`;
+- Prefer suggestions grounded in document limitations, recurring concepts, and citation signals.
+- If a PERSONAL FOCUS is provided, prioritize suggestions through this lens while staying anchored in the research scope and document evidence. The focus must shape the angle of the keywords, not replace the scope. Otherwise, treat the scope as the sole guide.`;
 
 const THESIS_QUESTION_ANSWER_PROMPT = `You are an academic writing assistant for MBA thesis work in Information Systems.
 Your task is to answer ONE thesis question in formal French, using ONLY the provided analyzed corpus.
@@ -295,6 +297,7 @@ ${truncatedText}`;
   async generateKeywordSuggestions(
     researchScope: { title: string; problematique: string; objectives?: string | null },
     documents: KeywordSuggestionContextDocument[],
+    personalTheme?: string | null,
   ): Promise<KeywordSuggestion[]> {
     if (!documents.length) {
       throw new Error('At least one document is required to generate keyword suggestions');
@@ -312,6 +315,12 @@ ${truncatedText}`;
     ]
       .filter(Boolean)
       .join('\n');
+
+    const trimmedTheme =
+      typeof personalTheme === 'string' ? personalTheme.trim() : '';
+    const personalFocusSection = trimmedTheme
+      ? `\n\n--- PERSONAL FOCUS (priority lens for keyword angle) ---\n${trimmedTheme}`
+      : '';
 
     const documentsSection = documents
       .map((document, index) => {
@@ -354,7 +363,7 @@ ${truncatedText}`;
     const userPrompt = `Generate keyword suggestions for this research context.
 
 --- RESEARCH SCOPE ---
-${scopeSection}
+${scopeSection}${personalFocusSection}
 
 --- EVIDENCE FROM EXISTING DOCUMENTS ---
 ${documentsSection}`;
@@ -475,7 +484,7 @@ ${documentsSection}`;
     try {
       const message = await this.client.messages.create({
         model,
-        max_tokens: 4096,
+        max_tokens: 16384,
         system: THESIS_QUESTION_ANSWER_PROMPT,
         messages: [{ role: 'user', content: userPrompt }],
       });
@@ -486,6 +495,12 @@ ${documentsSection}`;
       this.logger.log(
         `Question answer generated (${question.code}): ${message.usage.input_tokens} input tokens, ${message.usage.output_tokens} output tokens`,
       );
+
+      if (message.stop_reason === 'max_tokens') {
+        throw new UnrecoverableError(
+          `Thesis answer truncated by max_tokens limit (${message.usage.output_tokens} tokens). Reduce corpus size or raise max_tokens.`,
+        );
+      }
 
       return this.parseQuestionAnswerResponse(responseText);
     } catch (error) {
@@ -760,10 +775,11 @@ ${corpusSnapshot}`;
     try {
       const parsed = JSON.parse(jsonText);
 
-      const answerMarkdown = this.truncateText(
-        String(parsed.answerMarkdown || '').trim(),
-        500000,
-      );
+      const rawAnswer = String(parsed.answerMarkdown || '').trim();
+      const answerMarkdown =
+        rawAnswer.length > 500000
+          ? `${rawAnswer.slice(0, 499997)}...`
+          : rawAnswer;
 
       const rawEvidence = Array.isArray(parsed.evidenceRows)
         ? parsed.evidenceRows
@@ -929,6 +945,9 @@ ${corpusSnapshot}`;
     context: string,
     meta?: Record<string, unknown>,
   ): never {
+    if (error instanceof UnrecoverableError) {
+      throw error;
+    }
     if (error instanceof Anthropic.APIError) {
       const logMeta = meta ? ` | ${JSON.stringify(meta)}` : '';
       switch (error.status) {

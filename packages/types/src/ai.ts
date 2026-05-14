@@ -58,13 +58,25 @@ export interface KeywordSuggestionContextDocument {
   alignedObjectives?: string[];
 }
 
+export interface KeywordSuggestionsBasedOn {
+  scopeTitle: string;
+  documentCount: number;
+  analyzedDocumentCount: number;
+  citationCount: number;
+}
+
 export interface KeywordSuggestionsResponse {
+  id: string;
   generatedAt: string;
-  basedOn: {
-    scopeTitle: string;
-    documentCount: number;
-    analyzedDocumentCount: number;
-    citationCount: number;
-  };
+  themeUsed: string | null;
+  basedOn: KeywordSuggestionsBasedOn;
   suggestions: KeywordSuggestion[];
+}
+
+export interface KeywordSuggestionRunSummary {
+  id: string;
+  generatedAt: string;
+  themeUsed: string | null;
+  basedOn: KeywordSuggestionsBasedOn;
+  suggestionCount: number;
 }

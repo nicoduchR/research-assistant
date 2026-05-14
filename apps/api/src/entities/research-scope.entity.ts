@@ -30,6 +30,9 @@ export class ResearchScope {
   @Column({ type: 'text', nullable: true })
   objectives: string | null;
 
+  @Column({ name: 'personal_theme', type: 'varchar', length: 200, nullable: true })
+  personalTheme: string | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

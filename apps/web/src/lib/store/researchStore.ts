@@ -4,11 +4,16 @@ import {
   ResearchScope,
   CreateResearchScopeDto,
   KeywordSuggestionsResponse,
+  KeywordSuggestionRunSummary,
 } from '@repo/types';
 import {
   fetchResearchScope,
   createOrUpdateResearchScope,
   fetchKeywordSuggestions as fetchKeywordSuggestionsApi,
+  fetchLatestKeywordSuggestions as fetchLatestKeywordSuggestionsApi,
+  fetchKeywordSuggestionHistory as fetchKeywordSuggestionHistoryApi,
+  fetchKeywordSuggestionRun as fetchKeywordSuggestionRunApi,
+  deleteKeywordSuggestionRun as deleteKeywordSuggestionRunApi,
 } from '../api/research';
 
 // Research store state
@@ -20,6 +25,8 @@ interface ResearchState {
   keywordSuggestions: KeywordSuggestionsResponse | null;
   isKeywordSuggestionsLoading: boolean;
   keywordSuggestionsError: string | null;
+  keywordSuggestionRuns: KeywordSuggestionRunSummary[];
+  isKeywordSuggestionHistoryLoading: boolean;
 }
 
 // Research store actions
@@ -27,6 +34,10 @@ interface ResearchActions {
   fetchScope: () => Promise<void>;
   createScope: (data: CreateResearchScopeDto) => Promise<ResearchScope>;
   fetchKeywordSuggestions: () => Promise<KeywordSuggestionsResponse>;
+  hydrateLatestKeywordSuggestions: () => Promise<void>;
+  fetchKeywordSuggestionHistory: () => Promise<void>;
+  selectKeywordSuggestionRun: (runId: string) => Promise<void>;
+  deleteKeywordSuggestionRun: (runId: string) => Promise<void>;
   clearKeywordSuggestions: () => void;
   clearScope: () => void;
   setError: (error: string | null) => void;
@@ -37,7 +48,7 @@ type ResearchStore = ResearchState & ResearchActions;
 
 export const useResearchStore = create<ResearchStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       // Initial state
       scope: null,
       hasCompletedSetup: false,
@@ -46,6 +57,8 @@ export const useResearchStore = create<ResearchStore>()(
       keywordSuggestions: null,
       isKeywordSuggestionsLoading: false,
       keywordSuggestionsError: null,
+      keywordSuggestionRuns: [],
+      isKeywordSuggestionHistoryLoading: false,
 
       // Fetch user's research scope
       fetchScope: async () => {
@@ -100,6 +113,8 @@ export const useResearchStore = create<ResearchStore>()(
             isKeywordSuggestionsLoading: false,
             keywordSuggestionsError: null,
           });
+          // Refresh history in background so a new entry appears.
+          void get().fetchKeywordSuggestionHistory();
           return keywordSuggestions;
         } catch (error: any) {
           console.error('Failed to fetch keyword suggestions:', error);
@@ -114,11 +129,80 @@ export const useResearchStore = create<ResearchStore>()(
         }
       },
 
+      hydrateLatestKeywordSuggestions: async () => {
+        try {
+          const latest = await fetchLatestKeywordSuggestionsApi();
+          if (latest) {
+            set({ keywordSuggestions: latest });
+          }
+        } catch (error) {
+          console.error('Failed to hydrate latest keyword suggestions:', error);
+        }
+      },
+
+      fetchKeywordSuggestionHistory: async () => {
+        set({ isKeywordSuggestionHistoryLoading: true });
+        try {
+          const runs = await fetchKeywordSuggestionHistoryApi();
+          set({
+            keywordSuggestionRuns: runs,
+            isKeywordSuggestionHistoryLoading: false,
+          });
+        } catch (error) {
+          console.error('Failed to fetch keyword suggestion history:', error);
+          set({ isKeywordSuggestionHistoryLoading: false });
+        }
+      },
+
+      selectKeywordSuggestionRun: async (runId: string) => {
+        set({ isKeywordSuggestionsLoading: true, keywordSuggestionsError: null });
+        try {
+          const run = await fetchKeywordSuggestionRunApi(runId);
+          set({
+            keywordSuggestions: run,
+            isKeywordSuggestionsLoading: false,
+          });
+        } catch (error: any) {
+          console.error('Failed to load keyword suggestion run:', error);
+          set({
+            isKeywordSuggestionsLoading: false,
+            keywordSuggestionsError:
+              error.response?.data?.message ||
+              'Failed to load keyword suggestion run',
+          });
+        }
+      },
+
+      deleteKeywordSuggestionRun: async (runId: string) => {
+        try {
+          await deleteKeywordSuggestionRunApi(runId);
+          const remaining = get().keywordSuggestionRuns.filter(
+            (run) => run.id !== runId,
+          );
+          set({ keywordSuggestionRuns: remaining });
+          // If the run we just deleted was the one being displayed, clear or fall back to the latest remaining run.
+          if (get().keywordSuggestions?.id === runId) {
+            if (remaining.length === 0) {
+              set({ keywordSuggestions: null });
+            } else {
+              await get().selectKeywordSuggestionRun(remaining[0].id);
+            }
+          }
+        } catch (error: any) {
+          console.error('Failed to delete keyword suggestion run:', error);
+          throw new Error(
+            error.response?.data?.message ||
+              'Failed to delete keyword suggestion run',
+          );
+        }
+      },
+
       clearKeywordSuggestions: () => {
         set({
           keywordSuggestions: null,
           keywordSuggestionsError: null,
           isKeywordSuggestionsLoading: false,
+          keywordSuggestionRuns: [],
         });
       },
 
@@ -132,6 +216,8 @@ export const useResearchStore = create<ResearchStore>()(
           keywordSuggestions: null,
           isKeywordSuggestionsLoading: false,
           keywordSuggestionsError: null,
+          keywordSuggestionRuns: [],
+          isKeywordSuggestionHistoryLoading: false,
         });
       },
 

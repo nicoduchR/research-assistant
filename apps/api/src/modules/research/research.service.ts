@@ -4,11 +4,13 @@ import { In, Repository } from 'typeorm';
 import * as sanitizeHtml from 'sanitize-html';
 import type {
   KeywordSuggestionContextDocument,
+  KeywordSuggestionRunSummary,
   KeywordSuggestionsResponse,
 } from '@repo/types';
 import { ResearchScope } from '../../entities/research-scope.entity';
 import { ResearchDocument } from '../../entities/research-document.entity';
 import { DocumentAnalysis } from '../../entities/document-analysis.entity';
+import { KeywordSuggestionRun } from '../../entities/keyword-suggestion-run.entity';
 import { CreateResearchScopeDto } from './dto/create-research-scope.dto';
 import { AiService } from '../ai/ai.service';
 
@@ -21,6 +23,8 @@ export class ResearchService {
     private researchDocumentRepository: Repository<ResearchDocument>,
     @InjectRepository(DocumentAnalysis)
     private documentAnalysisRepository: Repository<DocumentAnalysis>,
+    @InjectRepository(KeywordSuggestionRun)
+    private keywordSuggestionRunRepository: Repository<KeywordSuggestionRun>,
     private aiService: AiService,
   ) {}
 
@@ -55,12 +59,17 @@ export class ResearchService {
     const sanitizedObjectives = dto.objectives
       ? this.sanitizeInput(dto.objectives)
       : null;
+    const sanitizedPersonalTheme =
+      typeof dto.personalTheme === 'string'
+        ? this.sanitizeInput(dto.personalTheme) || null
+        : null;
 
     if (existingScope) {
       // Update existing scope
       existingScope.title = sanitizedTitle;
       existingScope.problematique = sanitizedProblematique;
       existingScope.objectives = sanitizedObjectives;
+      existingScope.personalTheme = sanitizedPersonalTheme;
       return this.researchScopeRepository.save(existingScope);
     }
 
@@ -70,6 +79,7 @@ export class ResearchService {
       title: sanitizedTitle,
       problematique: sanitizedProblematique,
       objectives: sanitizedObjectives,
+      personalTheme: sanitizedPersonalTheme,
     });
 
     return this.researchScopeRepository.save(scope);
@@ -145,6 +155,7 @@ export class ResearchService {
         objectives: scope.objectives,
       },
       contextDocuments,
+      scope.personalTheme,
     );
 
     const citationCount = analyses.reduce(
@@ -152,15 +163,96 @@ export class ResearchService {
       0,
     );
 
-    return {
-      generatedAt: new Date().toISOString(),
-      basedOn: {
-        scopeTitle: scope.title,
-        documentCount: documents.length,
-        analyzedDocumentCount: analyses.length,
-        citationCount,
-      },
+    const basedOn = {
+      scopeTitle: scope.title,
+      documentCount: documents.length,
+      analyzedDocumentCount: analyses.length,
+      citationCount,
+    };
+
+    const run = this.keywordSuggestionRunRepository.create({
+      userId,
+      themeUsed: scope.personalTheme,
+      basedOn,
       suggestions,
+    });
+    const savedRun = await this.keywordSuggestionRunRepository.save(run);
+
+    return {
+      id: savedRun.id,
+      generatedAt: savedRun.generatedAt.toISOString(),
+      themeUsed: savedRun.themeUsed,
+      basedOn,
+      suggestions,
+    };
+  }
+
+  async getLatestKeywordSuggestionRun(
+    userId: string,
+  ): Promise<KeywordSuggestionsResponse | null> {
+    const run = await this.keywordSuggestionRunRepository.findOne({
+      where: { userId },
+      order: { generatedAt: 'DESC' },
+    });
+
+    if (!run) {
+      return null;
+    }
+
+    return this.runToResponse(run);
+  }
+
+  async listKeywordSuggestionRuns(
+    userId: string,
+  ): Promise<KeywordSuggestionRunSummary[]> {
+    const runs = await this.keywordSuggestionRunRepository.find({
+      where: { userId },
+      order: { generatedAt: 'DESC' },
+      take: 20,
+    });
+
+    return runs.map((run) => ({
+      id: run.id,
+      generatedAt: run.generatedAt.toISOString(),
+      themeUsed: run.themeUsed,
+      basedOn: run.basedOn,
+      suggestionCount: Array.isArray(run.suggestions) ? run.suggestions.length : 0,
+    }));
+  }
+
+  async getKeywordSuggestionRun(
+    userId: string,
+    runId: string,
+  ): Promise<KeywordSuggestionsResponse> {
+    const run = await this.keywordSuggestionRunRepository.findOne({
+      where: { id: runId, userId },
+    });
+
+    if (!run) {
+      throw new NotFoundException('Keyword suggestion run not found.');
+    }
+
+    return this.runToResponse(run);
+  }
+
+  async deleteKeywordSuggestionRun(userId: string, runId: string): Promise<void> {
+    const result = await this.keywordSuggestionRunRepository.delete({
+      id: runId,
+      userId,
+    });
+
+    if (!result.affected) {
+      throw new NotFoundException('Keyword suggestion run not found.');
+    }
+  }
+
+  private runToResponse(run: KeywordSuggestionRun): KeywordSuggestionsResponse {
+    return {
+      id: run.id,
+      generatedAt: run.generatedAt.toISOString(),
+      themeUsed: run.themeUsed,
+      basedOn: run.basedOn,
+      suggestions: run.suggestions,
     };
   }
 

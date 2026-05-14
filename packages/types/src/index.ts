@@ -48,7 +48,9 @@ export type {
   KeywordSuggestionIntent,
   KeywordSuggestion,
   KeywordSuggestionContextDocument,
+  KeywordSuggestionsBasedOn,
   KeywordSuggestionsResponse,
+  KeywordSuggestionRunSummary,
 } from './ai';
 
 // Literature Review types (Story 3.3)

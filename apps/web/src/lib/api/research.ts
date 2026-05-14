@@ -3,6 +3,7 @@ import {
   ResearchScope,
   CreateResearchScopeDto,
   KeywordSuggestionsResponse,
+  KeywordSuggestionRunSummary,
 } from '@repo/types';
 
 /**
@@ -34,11 +35,42 @@ export const createOrUpdateResearchScope = async (
 };
 
 /**
- * Generate keyword suggestions based on user's scope, documents, and analyses
+ * Generate keyword suggestions based on user's scope, documents, and analyses.
+ * The backend persists each generation as a run (full history).
  */
 export const fetchKeywordSuggestions = async (): Promise<KeywordSuggestionsResponse> => {
   const response = await apiClient.get<KeywordSuggestionsResponse>(
     '/research-scopes/keyword-suggestions',
   );
   return response.data;
+};
+
+export const fetchLatestKeywordSuggestions =
+  async (): Promise<KeywordSuggestionsResponse | null> => {
+    const response = await apiClient.get<KeywordSuggestionsResponse | null>(
+      '/research-scopes/keyword-suggestions/latest',
+    );
+    return response.data ?? null;
+  };
+
+export const fetchKeywordSuggestionHistory = async (): Promise<
+  KeywordSuggestionRunSummary[]
+> => {
+  const response = await apiClient.get<KeywordSuggestionRunSummary[]>(
+    '/research-scopes/keyword-suggestions/history',
+  );
+  return response.data;
+};
+
+export const fetchKeywordSuggestionRun = async (
+  runId: string,
+): Promise<KeywordSuggestionsResponse> => {
+  const response = await apiClient.get<KeywordSuggestionsResponse>(
+    `/research-scopes/keyword-suggestions/runs/${runId}`,
+  );
+  return response.data;
+};
+
+export const deleteKeywordSuggestionRun = async (runId: string): Promise<void> => {
+  await apiClient.delete(`/research-scopes/keyword-suggestions/runs/${runId}`);
 };

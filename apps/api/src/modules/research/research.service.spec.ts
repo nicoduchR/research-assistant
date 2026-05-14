@@ -6,6 +6,7 @@ import { ResearchService } from './research.service';
 import { ResearchScope } from '../../entities/research-scope.entity';
 import { ResearchDocument } from '../../entities/research-document.entity';
 import { DocumentAnalysis } from '../../entities/document-analysis.entity';
+import { KeywordSuggestionRun } from '../../entities/keyword-suggestion-run.entity';
 import { AiService } from '../ai/ai.service';
 import { CreateResearchScopeDto } from './dto/create-research-scope.dto';
 
@@ -14,6 +15,7 @@ describe('ResearchService', () => {
   let scopeRepository: jest.Mocked<Repository<ResearchScope>>;
   let documentRepository: jest.Mocked<Repository<ResearchDocument>>;
   let analysisRepository: jest.Mocked<Repository<DocumentAnalysis>>;
+  let runRepository: jest.Mocked<Repository<KeywordSuggestionRun>>;
   let aiService: jest.Mocked<AiService>;
 
   const mockScopeRepository = {
@@ -26,6 +28,13 @@ describe('ResearchService', () => {
   };
   const mockAnalysisRepository = {
     find: jest.fn(),
+  };
+  const mockRunRepository = {
+    findOne: jest.fn(),
+    find: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+    delete: jest.fn(),
   };
   const mockAiService = {
     generateKeywordSuggestions: jest.fn(),
@@ -48,6 +57,10 @@ describe('ResearchService', () => {
           useValue: mockAnalysisRepository,
         },
         {
+          provide: getRepositoryToken(KeywordSuggestionRun),
+          useValue: mockRunRepository,
+        },
+        {
           provide: AiService,
           useValue: mockAiService,
         },
@@ -58,6 +71,7 @@ describe('ResearchService', () => {
     scopeRepository = module.get(getRepositoryToken(ResearchScope));
     documentRepository = module.get(getRepositoryToken(ResearchDocument));
     analysisRepository = module.get(getRepositoryToken(DocumentAnalysis));
+    runRepository = module.get(getRepositoryToken(KeywordSuggestionRun));
     aiService = module.get(AiService);
   });
 
@@ -134,6 +148,7 @@ describe('ResearchService', () => {
         title: dto.title.trim(),
         problematique: dto.problematique.trim(),
         objectives: dto.objectives?.trim(),
+        personalTheme: null,
       });
       expect(scopeRepository.save).toHaveBeenCalledWith(newScope);
       expect(result).toEqual(newScope);
@@ -182,6 +197,7 @@ describe('ResearchService', () => {
         title: 'Test Title',
         problematique: 'Test problematique',
         objectives: 'Test objectives',
+        personalTheme: null,
       });
     });
 
@@ -204,6 +220,7 @@ describe('ResearchService', () => {
         title: 'Test Title',
         problematique: 'Test problematique',
         objectives: null,
+        personalTheme: null,
       });
     });
   });
@@ -241,6 +258,7 @@ describe('ResearchService', () => {
         title: 'Scope',
         problematique: 'Problem statement',
         objectives: 'Objective A',
+        personalTheme: null,
       } as ResearchScope);
 
       documentRepository.find.mockResolvedValue([
@@ -300,13 +318,88 @@ describe('ResearchService', () => {
         },
       ]);
 
+      runRepository.create.mockImplementation((data) => data as KeywordSuggestionRun);
+      runRepository.save.mockImplementation((entity) => {
+        const saved = {
+          ...(entity as KeywordSuggestionRun),
+          id: 'run-1',
+          generatedAt: new Date('2026-05-14T10:00:00.000Z'),
+        } as KeywordSuggestionRun;
+        return Promise.resolve(saved);
+      });
+
       const result = await service.generateKeywordSuggestions(userId);
 
       expect(aiService.generateKeywordSuggestions).toHaveBeenCalledTimes(1);
+      expect(aiService.generateKeywordSuggestions).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Scope' }),
+        expect.any(Array),
+        null,
+      );
+      expect(runRepository.save).toHaveBeenCalledTimes(1);
+      expect(result.id).toBe('run-1');
+      expect(result.themeUsed).toBeNull();
       expect(result.suggestions).toHaveLength(1);
       expect(result.basedOn.documentCount).toBe(1);
       expect(result.basedOn.analyzedDocumentCount).toBe(1);
       expect(result.basedOn.citationCount).toBe(1);
+    });
+
+    it('should propagate personalTheme to AI service and persist it in the run', async () => {
+      scopeRepository.findOne.mockResolvedValue({
+        id: 'scope-1',
+        userId,
+        title: 'Scope',
+        problematique: 'Problem statement',
+        objectives: null,
+        personalTheme: 'Transformation Digitale',
+      } as ResearchScope);
+
+      documentRepository.find.mockResolvedValue([
+        {
+          id: 'doc-1',
+          userId,
+          fileName: 'paper-a.pdf',
+          bibliographicMetadata: null,
+          updatedAt: new Date(),
+        } as unknown as ResearchDocument,
+      ]);
+
+      analysisRepository.find.mockResolvedValue([]);
+
+      aiService.generateKeywordSuggestions.mockResolvedValue([
+        {
+          keyword: 'industrie 4.0',
+          intent: 'deepen',
+          rationale: 'Lien direct avec la transformation digitale.',
+          ebscoQuery: '"industrie 4.0" AND "transformation digitale"',
+          relatedQuestion: 'Quels leviers ?',
+        },
+      ]);
+
+      runRepository.create.mockImplementation((data) => data as KeywordSuggestionRun);
+      runRepository.save.mockImplementation((entity) => {
+        const saved = {
+          ...(entity as KeywordSuggestionRun),
+          id: 'run-2',
+          generatedAt: new Date('2026-05-14T11:00:00.000Z'),
+        } as KeywordSuggestionRun;
+        return Promise.resolve(saved);
+      });
+
+      const result = await service.generateKeywordSuggestions(userId);
+
+      expect(aiService.generateKeywordSuggestions).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Scope' }),
+        expect.any(Array),
+        'Transformation Digitale',
+      );
+      expect(runRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          themeUsed: 'Transformation Digitale',
+        }),
+      );
+      expect(result.themeUsed).toBe('Transformation Digitale');
     });
   });
 });
